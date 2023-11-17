@@ -1,0 +1,1 @@
+lua C:\Tools\cygwin\home\MPC\gitlua\clue\src\main.lua
