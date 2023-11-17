@@ -1,11 +1,11 @@
-TestRunner = {}
+global TestRunner = {}
 
 method TestRunner::run(table, filter) {
 
     local obj = ObjectDescriptor::new()
 
     method obj::init(tbl, ftr) {
-        obj.name = "TestRunner"        
+        obj.name = "TestRunner"
         match type(tbl) {
             "table" => { obj.tests = tbl }
             default => { obj.tests = { tbl } }
@@ -15,53 +15,50 @@ method TestRunner::run(table, filter) {
     obj::init(table, filter)
 
     method obj::runSuite() {
-        /*
-    function obj:runSuite()
-        local results = Opt:of {}
-        local resultMessages = Opt:of {}
+        local results = Opt::of()
+        local resultMessages = Opt::of()
         local successes = 0
-        resultMessages:add("\nTest suites: " .. #obj.tests)
-        if (obj.filter ~= nil) then
-            resultMessages:add("\nFilter: " .. obj.filter)
-        end
 
-        Opt:of(obj.tests):
-            forEach(function(_, testClass)
-                resultMessages:add("\n\nSuite: " .. testClass:getName() .. "\n")
+        resultMessages::add("\nTest suites: " .. #obj.tests)
+        if obj.filter {
+            resultMessages::add("\nFilter: " .. obj.filter)
+        }
 
-                Opt:of(testClass):
-                    filter(function(key, value)
+        Opt::
+            of(obj.tests)::
+            forEach(fn (_, test) {
+                resultMessages::add("\n\nSuite: " .. test::getName() .. "\n")
+
+                Opt::
+                    of(test)::
+                    filter(fn (key, value) {
                         local keyFound = string.find(key, "test")
-                        if (obj.filter) then
-                            keyFound = keyFound and string.find(key, obj.filter)
-                        end
+                        if obj.filter {
+                            keyFound = keyFound && string.find(key, obj.filter)
+                        }
                         return keyFound
-                    end):
-                    forEach(function(fnName, fn)
-                        local r = fn()
-                        r:setTestName(fnName or "")
-                        results:add(r)
-                        resultMessages:add("\n" .. r.tostring())
-                        if r.state then successes = successes + 1 end
-                    end)
-            end)
+                    })::
+                    forEach(fn (fnName, fn1) {
+                        local tr = fn1()
+                        tr::setTestName(fnName || "")
+                        results::add(tr)
+                        resultMessages::add("\n" .. tr::tostring())
+                        if tr.state { successes += 1 }
+                    })
+            })
 
         local message = ""
-        resultMessages:forEach(function(k, v) message = message .. v end)
+        resultMessages::forEach(fn (k, v) { message = message .. v })
         mpr(message)
-        mpr(string.format("\n\nTotal tests run: %s, ok: %s, failed: %s", results:size(), successes,
-            results:size() - successes))
-    end
-
-    obj:runSuite()
-
-    return obj
-end
-
-*/
+        mpr(string.format("\n\nTotal tests run: %s, ok: %s, failed: %s",
+            results::size(),
+            successes,
+            results::size() - successes))
     }
 
+    obj::runSuite()
 
+    return obj
 }
 
-
+return TestRunner

@@ -11,22 +11,23 @@ method Opt::of(val) {
         obj.isFunction = util.isFunction
         obj.isDef = util.isDef
         obj.isTable = util.isTable
+        obj.isAllDef = util.isAllDef
     }
     obj::init(val)
 
     method obj::use(o) {
-        local s = obj
-        if s::isTable(o) && s::isDef(o.name) && o.name == "Opt" {
-            s::use(o::get())
+
+        if o?.get && o?.name == "Opt" {
+            obj::use(o::get())
         }
-        elseif s::isTable(o) { 
-            s.tbl = o 
-        }   
-        elseif s::isDef(o) {
-            s.tbl = { o }
+        elseif obj::isTable(o) {
+            obj.tbl = o
+        }
+        elseif obj::isDef(o) {
+            obj.tbl = { o }
         }
         else {
-            s.tbl = {}  
+            obj.tbl = {}
         }
         return self
     }
@@ -37,154 +38,152 @@ method Opt::of(val) {
     }
 
     method obj::set(k, v) {
-        if k != nil && v != nil {
+        if obj::isAllDef(k, v) {
             obj.tbl[k] = v
         }
         return self
     }
-    
+
     method obj::add(o) {
-        if o != nil {
+        if obj::isDef(o) {
             obj.tbl[#obj.tbl + 1] = o
         }
         return self
     }
 
-    // function obj:map(fn)
-    //     local allResults = {}
-    //     local isResults = false
-    //     if fn ~= nil and obj:isFunction(fn) then
-    //         for k, v in pairs(obj.tbl) do
-    //             local result = fn(k, v)
-    //             if result then
-    //                 allResults[#allResults + 1] = result
-    //                 isResults = true
-    //             end
-    //         end
-    //     end
-    //     if isResults then
-    //         return Opt:of(allResults)
-    //     else
-    //         return Opt:of(obj:get())
-    //     end
-    // end
+    method obj::map(fn1) {
+        local allResults = {}
+        local isResults = false
+        if obj::isFunction(fn1) {
+            for k, v of obj.tbl {
+                local result = fn1(k, v)
+                if result {
+                    allResults[#allResults + 1] = result
+                    isResults = true
+                }
+            }
+        }
+        if isResults {
+            return Opt::of(allResults)
+        }
+        else {
+            return Opt::of(obj::get())
+        }
+    }
+
+    method obj::forEach(fn1) {
+        if obj::isFunction(fn1) {
+            for key, value of obj.tbl {
+                fn1(key, value)
+            }
+        }
+        return self
+    }
+
+    method obj::filter(pr) {
+        local results = {}
+
+        if pr == nil || !obj::isFunction(pr) { // no op in malformed call
+            results = obj::get()
+        }
+        else {
+            for k, v of obj.tbl {
+                if pr(k, v) {
+                    results[k] = v
+                }
+            }
+        }
+        return Opt::of(results)
+    }
+
+    // cost of malformed "code" is an unintelligent error message
+    method obj::mapc(code) {
+        local mapped = {}
+        local isResults = false
+
+        if ( !obj::isEmptyStr(code)) {
+            // two return calls
+            // function() return function() return %s end end
+            local codeString = string.format("return function(k, v) %s end", code)
+            local fn1 = loadstring(codeString)()
+            setfenv(fn1, getfenv())
+            mapped = obj::map(fn1)
+            isResults = true
+        }
+        if isResults {
+            return Opt::of(mapped)
+        }
+        else {
+            return Opt::of(obj::get())
+        }
+    }
+
+    method obj::get() {
+        local size = 0
+        local firstKey = nil
+
+        for key, value of obj.tbl {
+            size = size + 1
+            if size == 1 { firstKey = key }
+            if size >= 2 { break }
+        }
+        if size >= 2 {
+            return obj.tbl
+        }
+        else {
+            return obj.tbl[firstKey]
+        }
+    }
+
+    method obj::with(fn1) {
+        if obj::isFunction(fn1) {
+            fn1(obj.tbl)
+        }
+        return self
+    }
+
+    method obj::flatMap(fn1) {
+        local results = {}
+        local isResults = false
+        if obj::isFunction(fn1) {
+            for k, v of obj.tbl {
+                local mapped = fn1(k, v)
+                if obj::isTable(mapped) {
+                    for _, v2 of mapped {
+                        results[#results + 1] = v2
+                        isResults = true
+                    }
+                }
+                else {
+                    results[#results + 1] = mapped
+                    isResults = true
+                }
+            }
+        }
+        if isResults {
+            return Opt::of(results)
+        }
+        else {
+            return Opt::of(obj::get())
+        }
+    }
+
+    method obj::dump() {
+        mpr(dump(obj.tbl))
+        return self
+    }
+
+    // keeps existing keys
+    method obj::addAll(table) {
+        if obj::isTable(table) {
+            for key, value of table {
+                obj.tbl[#obj.tbl + 1] = value
+            }
+        }
+        return self
+    }
 
     return obj
 }
 
 return Opt
-
-/*
-   
-
-
-    function obj:forEach(fn)
-        if obj:isFunction(fn) then
-            for key, value in pairs(obj.tbl) do
-                fn(key, value)
-            end
-        end
-        return self
-    end
-
-    function obj:filter(pr)
-        local results = {}
-        if pr == nil or type(pr) ~= "function" then -- no op in malformed call
-            results = obj:get()
-        else
-            for k, v in pairs(obj.tbl) do
-                if pr(k, v) then
-                    results[k] = v
-                end
-            end
-        end
-        return Opt:of(results)
-    end
-
-    -- cost of malformed "code" is an unintelligent error message
-    function obj:mapc(code)
-        local returnValue = {}
-        local isResults = false
-        if (not obj:isEmptyStr(code)) then
-            local codeString = string.format("return function(k, v) %s end", code) -- two return calls
-            local function1 = loadstring(codeString)()                             -- function() return function() return %s end end
-            setfenv(function1, getfenv())
-            returnValue = obj:map(function1)
-            isResults = true
-        end
-        if isResults then
-            return Opt:of(returnValue)
-        else
-            return Opt:of(obj:get())
-        end
-    end
-
-    function obj:get()
-        local size = 0
-        local firstKey = nil
-        for key, value in pairs(obj.tbl) do
-            size = size + 1
-            if size == 1 then
-                firstKey = key
-            end
-            if size >= 2 then
-                break
-            end
-        end
-        if size >= 2 then
-            return obj.tbl
-        else
-            return obj.tbl[firstKey]
-        end
-    end
-
-    function obj:with(fn)
-        local results = nil
-        if fn ~= nil and type(fn) == "function" then
-            results = fn(obj.tbl)
-        end
-        return Opt:of(results)
-    end
-
-    function obj:flatMap(fn)
-        local results = {}
-        local isResults = false
-        if fn ~= nil and type(fn) == "function" then
-            for k, v in pairs(obj.tbl) do
-                local c = fn(k, v)
-                if c ~= nil and type(c) == "table" then
-                    for _, v2 in pairs(c) do
-                        results[#results + 1] = v2
-                        isResults = true
-                    end
-                else
-                    results[#results + 1] = v
-                    isResults = true
-                end
-            end
-        end
-        if isResults then
-            return Opt:of(results)
-        else
-            return Opt:of(obj:get())
-        end
-    end
-
-    function obj:dump()
-        mpr(dump(obj.tbl))
-        return self
-    end
-
-    -- keeps existing keys
-    function obj:addAll(t)
-        if t ~= nil and type(t) then
-            for key, value in pairs(t) do
-                obj.tbl[#obj.tbl + 1] = value
-            end
-        end
-        return self
-    end
-
-    return obj
-end
-*/

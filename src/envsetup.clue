@@ -32,27 +32,24 @@ method EnvSetup::run() {
             global c_persist = {}
 
             mpr("Using DEV env.")
-        }    
+        }
     }
     obj::setGlobals()
 
-    // TODO move this to the TestRunner
     method obj::runTests() {
 
         local tests =
         {
-            // OptTest:new(),
+            OptTest::new(),
             // AssertTest:new(),
             // UtilTest:new(),
             // ObjectDescriptorTest:new(),
             // ExpTest:new()
         }
 
-        // local testFilter = nil
+        local testFilter = nil
         // testFilter = "testMMM"
-        // TestRunner:run(tests, testFilter)
-
-        Util::new()::setOptions()
+        TestRunner::run(tests, testFilter)
 
         // local charDef = CharacterDefaults:new()
         // global saveCharDefaults = charDef.saveCharDefaults

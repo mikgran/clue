@@ -18,7 +18,7 @@ method Util::new() {
         crawl.setopt("message_colour += mute:move target cursor")
         crawl.setopt("message_colour += mute:Aim:")
         crawl.setopt("message_colour += mute:You reach to attack")
-        crawl.setopt("message_colour += mute:No target in view!")        
+        crawl.setopt("message_colour += mute:No target in view!")
     }
 
     method obj::unsetOptions() {
@@ -39,10 +39,10 @@ method Util::new() {
     }
 
     method obj::isAll(fn1, ...) {
-        
+
         local allDef = true
         for i = 1, select('#', ...) {
-            
+
             if !fn1(select(i, ...)) {
                 allDef = false
                 break
@@ -52,14 +52,11 @@ method Util::new() {
     }
 
     method obj::isAllDef(...) {
-        local isAll = obj.isAll
-        return isAll(fn(o) { return o != nil }, ...)
+        return obj::isAll(fn(o) { return o != nil }, ...)
     }
 
-    method obj::isAllTables(...) { 
-        local isAll = obj.isAll
-        local isTable = obj.isTable
-        return isAll(fn(o) { return isTable(o) }, ...)
+    method obj::isAllTables(...) {
+        return obj::isAll(fn(o) { return obj::isTable(o) }, ...)
     }
 
     method obj::isUnDef(o) { return (o == nil) }
@@ -68,17 +65,15 @@ method Util::new() {
 
 
     method obj::eq(a, b) {
-        local isDef = obj.isDef
         local isEqual = false
-        if isDef(a) && isDef(b) && a == b {
+        if obj::isDef(a) && obj::isDef(b) && a == b {
             isEqual = true
         }
     }
 
     method obj::eq(a, b) {
-        local isDef = obj.isDef
         local isEqual = false
-        if isDef(a) && isDef(b) && a == b {
+        if obj::isDef(a) && obj::isDef(b) && a == b {
             isEqual = true
         }
         return isEqual
@@ -92,9 +87,8 @@ method Util::new() {
     // unrecursive shallow testing: no table compares
     // every key in t1 must be found in t2 and they must return same the value
     method obj::tablesEqual(t1, t2) {
-        local isAllTables = obj.isAllTables
         local isTablesEqual = false
-        if isAllTables(t1, t2) && #t1 == #t2 {
+        if obj::isAllTables(t1, t2) && #t1 == #t2 {
             isTablesEqual = true
             for k, v of t1 {
                 if t1[i] != t2[i] {             // every key found in both tables and they return same values
@@ -108,15 +102,15 @@ method Util::new() {
 
     method obj::identV(v) { return v }
 
-    method obj::table1ContainsTable2(t1, t2) { 
-        local foundAll = false        
+    method obj::table1ContainsTable2(t1, t2) {
+        local foundAll = false
         if obj::isAllTables(t1, t2) && #t2 <= #t1 {
             foundAll = true
-            for i2, v2 of t2 { 
+            for i2, v2 of t2 {
                 if t1[i2] != t2[i2] { // found all keys in table2 pointing to same values in both tables
                     foundAll = false
                     break
-                }    
+                }
             }
         }
         return foundAll
@@ -125,7 +119,7 @@ method Util::new() {
     // unrecursive shallow testing: no table compares
     // t2 keys must be a subset of t1 keys, both unordered
     // no value comparison
-    method obj::tableKeys1ContainsTableKeys2(t1, t2) {  
+    method obj::tableKeys1ContainsTableKeys2(t1, t2) {
         local foundAll = false
         if obj::isAllTables(t1, t2) && #t2 <= #t1 {
             foundAll = true
@@ -134,18 +128,18 @@ method Util::new() {
                 for i1, _ of t1 {
                     if i2 == i1 {
                         found = true
-                        break    
-                    }                
+                        break
+                    }
                 }
                 foundAll = foundAll && found
                 if !foundAll {
                     break
                 }
-            }            
+            }
         }
         return foundAll
     }
-    
+
     return obj
 }
 
@@ -174,7 +168,17 @@ if !mpr {
     }
 }
 
+if !split {
+    global split = fn (str, sep) {
+        local r = {}
+        if str != nil && type(str) == "string" && sep != nil && type(sep) == "string" {
+            local regex = ("([^%s]+)")::format(sep)
+            for o with str::gmatch(regex) {
+                r[#r + 1] = o
+            }
+        }
+        return r
+    }
+}
+
 return Util
-
-
-
