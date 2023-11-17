@@ -30,21 +30,44 @@ method Opt::of(val) {
         }
         return self
     }
+    obj::use(val)
 
+    method obj::size() {
+        return #obj.tbl
+    }
 
+    method obj::set(k, v) {
+        if k != nil && v != nil {
+            obj.tbl[k] = v
+        }
+        return self
+    }
+    
+    method obj::add(o) {
+        if o != nil {
+            obj.tbl[#obj.tbl + 1] = o
+        }
+        return self
+    }
 
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    // method obj::use(o) {}
-    
-    
-    
+    // function obj:map(fn)
+    //     local allResults = {}
+    //     local isResults = false
+    //     if fn ~= nil and obj:isFunction(fn) then
+    //         for k, v in pairs(obj.tbl) do
+    //             local result = fn(k, v)
+    //             if result then
+    //                 allResults[#allResults + 1] = result
+    //                 isResults = true
+    //             end
+    //         end
+    //     end
+    //     if isResults then
+    //         return Opt:of(allResults)
+    //     else
+    //         return Opt:of(obj:get())
+    //     end
+    // end
 
     return obj
 }
@@ -52,60 +75,8 @@ method Opt::of(val) {
 return Opt
 
 /*
+   
 
-    function obj:use(o)
-        local s = obj
-        if s:isTable(o) and s:isDef(o.name) and o.name == "Opt" then
-            s:use(o:get())
-        elseif s:isTable(o) then
-            s.tbl = o
-        elseif s:isDef(o) then
-            s.tbl = { o }
-        else
-            s.tbl = {}
-        end
-
-        return self
-    end
-
-    obj:use(val)
-
-    function obj:size()
-        return #obj.tbl
-    end
-
-    function obj:set(k, v)
-        if k ~= nil and v ~= nil then
-            obj.tbl[k] = v
-        end
-        return self
-    end
-
-    function obj:add(o)
-        if o ~= nil then
-            obj.tbl[#obj.tbl + 1] = o
-        end
-        return self
-    end
-
-    function obj:map(fn)
-        local allResults = {}
-        local isResults = false
-        if fn ~= nil and obj:isFunction(fn) then
-            for k, v in pairs(obj.tbl) do
-                local result = fn(k, v)
-                if result then
-                    allResults[#allResults + 1] = result
-                    isResults = true
-                end
-            end
-        end
-        if isResults then
-            return Opt:of(allResults)
-        else
-            return Opt:of(obj:get())
-        end
-    end
 
     function obj:forEach(fn)
         if obj:isFunction(fn) then
