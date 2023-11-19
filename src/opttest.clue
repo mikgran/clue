@@ -15,12 +15,8 @@ method OptTest::new() {
         local expected = str .. str
         Opt::
             of(str)::
-            map(fn (k, v) {
-                return v .. v
-            })::
-            with(fn (v) {
-                candidate = v[1]
-            })
+            map(fn (k, v) { return v .. v })::
+            with(fn (v) { candidate = v[1] })
 
         return obj.assert::equals(expected, candidate)
     }
@@ -219,9 +215,7 @@ method OptTest::new() {
 
         Opt::
             of(strs)::
-            forEach(fn(k, v) {
-                candidate::add(v)
-            })
+            forEach(fn(k, v) { candidate::add(v) })
 
         return obj.assert::equals(expected, candidate::get())
     }
@@ -233,9 +227,7 @@ method OptTest::new() {
 
         Opt::
             of(strs)::
-            with(fn(table) {
-                candidate = table
-            })
+            with(fn(table) { candidate = table })
 
         return obj.assert::equals(expected, candidate)
     }
@@ -247,12 +239,8 @@ method OptTest::new() {
 
         Opt::
             of(strs)::
-            flatMap(fn(k, v) {
-                return split(v, ",")
-            })::
-            forEach(fn(k, v) {
-                candidate[#candidate + 1] = v
-            })
+            flatMap(fn(k, v) { return split(v, ",") })::
+            forEach(fn(k, v) { candidate[#candidate + 1] = v })
 
         return obj.assert::equals(expected, candidate)
     }
@@ -285,6 +273,21 @@ method OptTest::new() {
 
         return obj.assert::equals(expected, candidate)
     }
+
+    method obj::testReduce() {
+
+        local strs = { 5, 5, 10, 20, 20 }
+        local candidate = nil
+        local expected = 60
+
+        Opt::
+            of(strs)::
+            reduce(fn (k, v, a) { return a + v  }, 0)::
+            with(fn (t) { candidate = t[1] })
+
+        return obj.assert::equals(expected, candidate)
+    }
+
 
     return obj
 }

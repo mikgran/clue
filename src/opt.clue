@@ -12,18 +12,19 @@ method Opt::of(val) {
         obj.isDef = util.isDef
         obj.isTable = util.isTable
         obj.isAllDef = util.isAllDef
+        obj.isNumber = util.isNumber
     }
     obj::init(val)
 
     method obj::use(o) {
 
-        if o?.get && o?.name == "Opt" {
+        if !obj::isNumber(o) && o?.get && o?.name == "Opt" {
             obj::use(o::get())
         }
         elseif obj::isTable(o) {
             obj.tbl = o
         }
-        elseif obj::isDef(o) {
+        elseif o {
             obj.tbl = { o }
         }
         else {
@@ -38,14 +39,14 @@ method Opt::of(val) {
     }
 
     method obj::set(k, v) {
-        if obj::isAllDef(k, v) {
+        if k && v {
             obj.tbl[k] = v
         }
         return self
     }
 
     method obj::add(o) {
-        if obj::isDef(o) {
+        if o {
             obj.tbl[#obj.tbl + 1] = o
         }
         return self
@@ -122,10 +123,14 @@ method Opt::of(val) {
         local size = 0
         local firstKey = nil
 
-        for key, value of obj.tbl {
+        for key, val of obj.tbl {
             size = size + 1
-            if size == 1 { firstKey = key }
-            if size >= 2 { break }
+            if size == 1 {
+                firstKey = key
+            }
+            if size >= 2 {
+                break
+            }
         }
         if size >= 2 {
             return obj.tbl
@@ -182,6 +187,19 @@ method Opt::of(val) {
         }
         return self
     }
+
+    method obj::reduce(fn1, acc) {
+        local a = acc
+        if obj::isFunction(fn1) && acc {
+            for k, v of obj.tbl {
+                a = fn1(k, v, a)
+            }
+        } else {
+            return self
+        }
+        return Opt::of(a)
+    }
+
 
     return obj
 }
