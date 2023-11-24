@@ -1,49 +1,49 @@
 global AssertTest = {}
 
-function AssertTest:new()
+method AssertTest::new() {
 
-    local obj = ObjectDescriptor:new()
+    local obj = ObjectDescriptor::new()
 
-    function obj:init()
+    method obj::init() {
         obj.name = "AssertTest"
-    end
-    obj:init()
+    }
+    obj::init()
 
-    function obj:testEquals()
+    method obj::testEquals() {
 
-        local Assert = Assert:new()
+        local Assert = Assert::new()
         local expected = "t111"
         local candidate = "t111"
 
-        return Assert:equals(expected, candidate)
-    end
+        return Assert::equals(expected, candidate)
+    }
 
-    function obj:testEqualsWithNilCandidate()
+    method obj::testEqualsWithNilCandidate() {
 
-        local Assert = Assert:new()
+        local Assert = Assert::new()
         local expected = "t111"
         local candidate = nil
 
-        return Assert:notEquals(expected, candidate)
-    end
+        return Assert::notEquals(expected, candidate)
+    }
 
-    function obj:testNotEquals()
+    method obj::testNotEquals() {
 
-        local Assert = Assert:new()
+        local Assert = Assert::new()
         local expected = "t222"
         local candidate = "t111"
 
-        return Assert:notEquals(expected, candidate)
-    end
+        return Assert::notEquals(expected, candidate)
+    }
 
-    function obj:testAssertLists()
+    method obj::testAssertLists() {
 
-        local Assert = Assert:new()
+        local Assert = Assert::new()
         local expected = { "abc" }
         local candidate = { "abc" }
 
-        return Assert:equals(expected, candidate)
-    end
+        return Assert::equals(expected, candidate)
+    }
 
     return obj
-end
+}

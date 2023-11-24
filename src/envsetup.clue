@@ -41,6 +41,7 @@ method EnvSetup::run() {
         local tests =
         {
             OptTest::new(),
+            AssertTest::new(),
             // AssertTest:new(),
             // UtilTest:new(),
             // ObjectDescriptorTest:new(),

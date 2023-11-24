@@ -5,11 +5,14 @@ local imports = {
     "util",
     "envsetup",
     "assert",
+    "asserttest"
     "testresult",
     "testutil",
+    "testrunner",
     "opt",
     "opttest",
-    "testrunner"
+
+
 }
 
 for _, name in imports {
