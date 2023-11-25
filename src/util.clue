@@ -1,41 +1,42 @@
 global Util = {}
+
 method Util::new() {
 
     local obj = {}
     method obj::setOptions() {
 
         crawl.setopt("pickup_mode = multi")
-        crawl.setopt("message_colour += mute:Okay")
-        crawl.setopt("message_colour += mute:Read which item")
-        crawl.setopt("message_colour += mute:Search for what")
-        crawl.setopt("message_colour += mute:Can't find anything")
-        crawl.setopt("message_colour += mute:Drop what")
-        crawl.setopt("message_colour += mute:Use which ability")
-        crawl.setopt("message_colour += mute:Read which item")
-        crawl.setopt("message_colour += mute:Drink which item")
-        crawl.setopt("message_colour += mute:not good enough")
-        crawl.setopt("message_colour += mute:Attack whom")
-        crawl.setopt("message_colour += mute:move target cursor")
-        crawl.setopt("message_colour += mute:Aim:")
-        crawl.setopt("message_colour += mute:You reach to attack")
-        crawl.setopt("message_colour += mute:No target in view!")
+        crawl.setopt("message_colour += mute::Okay")
+        crawl.setopt("message_colour += mute::Read which item")
+        crawl.setopt("message_colour += mute::Search for what")
+        crawl.setopt("message_colour += mute::Can't find anything")
+        crawl.setopt("message_colour += mute::Drop what")
+        crawl.setopt("message_colour += mute::Use which ability")
+        crawl.setopt("message_colour += mute::Read which item")
+        crawl.setopt("message_colour += mute::Drink which item")
+        crawl.setopt("message_colour += mute::!good enough")
+        crawl.setopt("message_colour += mute::Attack whom")
+        crawl.setopt("message_colour += mute::move target cursor")
+        crawl.setopt("message_colour += mute::Aim::")
+        crawl.setopt("message_colour += mute::You reach to attack")
+        crawl.setopt("message_colour += mute::No target in view!")
     }
 
     method obj::unsetOptions() {
         crawl.setopt("pickup_mode = auto")
-        crawl.setopt("message_colour -= mute:Okay")
-        crawl.setopt("message_colour -= mute:Search for what")
-        crawl.setopt("message_colour -= mute:Can't find anything")
-        crawl.setopt("message_colour -= mute:Drop what")
-        crawl.setopt("message_colour -= mute:Use which ability")
-        crawl.setopt("message_colour -= mute:Read which item")
-        crawl.setopt("message_colour -= mute:Drink which item")
-        crawl.setopt("message_colour -= mute:not good enough")
-        crawl.setopt("message_colour -= mute:Attack whom")
-        crawl.setopt("message_colour -= mute:move target cursor")
-        crawl.setopt("message_colour -= mute:Aim:")
-        crawl.setopt("message_colour -= mute:You reach to attack")
-        crawl.setopt("message_colour -= mute:No target in view!")
+        crawl.setopt("message_colour -= mute::Okay")
+        crawl.setopt("message_colour -= mute::Search for what")
+        crawl.setopt("message_colour -= mute::Can't find anything")
+        crawl.setopt("message_colour -= mute::Drop what")
+        crawl.setopt("message_colour -= mute::Use which ability")
+        crawl.setopt("message_colour -= mute::Read which item")
+        crawl.setopt("message_colour -= mute::Drink which item")
+        crawl.setopt("message_colour -= mute::!good enough")
+        crawl.setopt("message_colour -= mute::Attack whom")
+        crawl.setopt("message_colour -= mute::move target cursor")
+        crawl.setopt("message_colour -= mute::Aim::")
+        crawl.setopt("message_colour -= mute::You reach to attack")
+        crawl.setopt("message_colour -= mute::No target in view!")
     }
 
     method obj::isAll(fn1, ...) {
@@ -79,19 +80,19 @@ method Util::new() {
         return isEqual
     }
 
-    method obj::isFunction(o) { return (o != nil && type(o) == "function") }
+    method obj::isFunction (o) { return (o != nil && type(o) == "function") }
     method obj::isTable(o) { return (o != nil && type(o) == "table") }
     method obj::isString(o) { return (o != nil && type(o) == "string") }
     method obj::isNumber(o) { return (o != nil && type(o) == "number") }
 
-    // unrecursive shallow testing: no table compares
-    // every key in t1 must be found in t2 and they must return same the value
+    // unrecursive shallow testing:: no table compares
+    // every key in t1 must be found in t2 && they must return same the value
     method obj::tablesEqual(t1, t2) {
         local isTablesEqual = false
         if obj::isAllTables(t1, t2) && #t1 == #t2 {
             isTablesEqual = true
             for k, v of t1 {
-                if t1[i] != t2[i] {             // every key found in both tables and they return same values
+                if t1[i] != t2[i] {             // every key found in both tables && they return same values
                     isTablesEqual = false
                     break
                 }
@@ -116,7 +117,7 @@ method Util::new() {
         return foundAll
     }
 
-    // unrecursive shallow testing: no table compares
+    // unrecursive shallow testing:: no table compares
     // t2 keys must be a subset of t1 keys, both unordered
     // no value comparison
     method obj::tableKeys1ContainsTableKeys2(t1, t2) {
@@ -143,22 +144,6 @@ method Util::new() {
     return obj
 }
 
-if !dump {
-    global dump = fn (o) {
-        if type(o) == 'table' {
-            local s = '{ '
-            for k, v of o {
-                if type(k) != 'number' { k = '"' .. k .. '"' }
-                s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
-            }
-            return s .. '} '
-        }
-        else {
-            return tostring(o)
-        }
-    }
-}
-
 if !mpr {
     mpr = fn (msg, color) {
         if !color {
@@ -168,8 +153,92 @@ if !mpr {
     }
 }
 
+// shamelessly borrowed from the net
+if !dump {
+    dump = fn (o) {
+        if type(o) == 'table' {
+            local s = '{ '
+            for k, v of o {
+                if type(k) != 'number' { k = '"' .. k .. '"' }
+                s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+            }
+            return s .. '} '
+        } else {
+            return tostring(o)
+        }
+    }
+}
+
+// shamelessly borrowed from the net
+if !tprint {
+    tprint = fn (t, s) {
+        for k, v of t {
+            local kfmt = '["' .. tostring(k) .. '"]'
+            if type(k) != 'string' {
+                kfmt = '[' .. k .. ']'
+            }
+
+            local vfmt = '"' .. tostring(v) .. '"'
+            if type(v) == 'table' {
+                tprint(v, (s || '') .. kfmt)
+            } else {
+                if type(v) != 'string' {
+                    vfmt = tostring(v)
+                }
+                mpr(type(t) .. (s || '') .. kfmt .. ' = ' .. vfmt)
+            }
+        }
+    }
+}
+
+if !tableAdd {
+    tableAdd = fn (t, o) {
+        if t != nil && type(t) == "table" {
+            t[#t + 1] = o
+        }
+    }
+}
+if !tableFilter {
+    tableFilter = fn (t, p) {
+        local results = {}
+        if t != nil && type(t) == "table" && p != nil && type(p) == "function" {
+            for k, v of t {
+                if p(k, v) {
+                    results[#results + 1] = v
+                }
+            }
+        }
+        return results
+    }
+}
+if !tableForEach {
+    tableForEach = fn (t, fn1) { 
+        if t != nil && type(t) == "table" && fn1 != nil && type(fn1) == "function" {
+            for k, v of t {
+                fn1(k, v)
+            }
+        }
+    }
+}
+
+// shamelessly borrowed from the net
+if !stripLetters {
+    stripLetters = fn (str) {
+        local result = ""
+        if str != nil && type(str) == "string" {
+            for i = 1, #str {
+                local c = str::sub(i, i)
+                if c::match("^%-?%d+$") {
+                    result = result .. c
+                }
+            }
+        }
+        return result
+    }
+}
+
 if !split {
-    global split = fn (str, sep) {
+    split = fn (str, sep) {
         local r = {}
         if str != nil && type(str) == "string" && sep != nil && type(sep) == "string" {
             local regex = ("([^%s]+)")::format(sep)
@@ -178,6 +247,28 @@ if !split {
             }
         }
         return r
+    }
+}
+
+if !splitByChunk {
+    splitByChunk = fn (text, chunkSize) {
+        local s = {}
+        if text != nil && type(text) == "string" && chunkSize != nil && type(chunkSize) == "number" {
+            for i = 1, #text, chunkSize {
+                s[#s + 1] = text::sub(i, i + chunkSize - 1)
+            }
+        }
+        return s
+    }
+}
+
+if !trim {
+    trim = fn (s) {
+        if type(s) == "string" {
+            return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
+        } else {
+            return s
+        }
     }
 }
 

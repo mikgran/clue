@@ -26,7 +26,7 @@ method EnvSetup::run() {
             global you = {}
             method you::turns() { return 0 }
             method you::race() { return "human" }
-            method you::classa() { return "fighter" }
+            method you::class() { return "fighter" }
 
             global fn mpr(str) { print(str) }
             global c_persist = {}
@@ -43,18 +43,13 @@ method EnvSetup::run() {
             OptTest::new(),
             AssertTest::new(),
             UtilTest::new()
-            // ObjectDescriptorTest::new(),
+            ObjectDescriptorTest::new(),
             // ExpTest::new()
         }
 
         local testFilter = nil
         // testFilter = "testMMM"
         TestRunner::run(tests, testFilter)
-
-        // local charDef = CharacterDefaults:new()
-        // global saveCharDefaults = charDef.saveCharDefaults
-        // globall loadCharDefaults = charDef.loadCharDefaults
-        // charDef:setDefaults()
     }
     obj::runTests()
 

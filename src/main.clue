@@ -11,7 +11,9 @@ local imports = {
     "testrunner",
     "opt",
     "opttest",
-    "utiltest"
+    "utiltest",
+    "objectdescriptortest",
+    "characterdefaults"
 }
 
 for _, name in imports {
@@ -20,6 +22,11 @@ for _, name in imports {
 
 EnvSetup::run()
 Util::new()::setOptions()
+
+local charDef = CharacterDefaults::new()
+global saveCharDefaults = charDef.saveCharDefaults
+global loadCharDefaults = charDef.loadCharDefaults
+charDef::setDefaults()
 
 
 
