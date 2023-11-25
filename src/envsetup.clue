@@ -42,10 +42,9 @@ method EnvSetup::run() {
         {
             OptTest::new(),
             AssertTest::new(),
-            // AssertTest:new(),
-            // UtilTest:new(),
-            // ObjectDescriptorTest:new(),
-            // ExpTest:new()
+            UtilTest::new()
+            // ObjectDescriptorTest::new(),
+            // ExpTest::new()
         }
 
         local testFilter = nil

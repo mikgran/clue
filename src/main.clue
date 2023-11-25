@@ -11,8 +11,7 @@ local imports = {
     "testrunner",
     "opt",
     "opttest",
-
-
+    "utiltest"
 }
 
 for _, name in imports {
