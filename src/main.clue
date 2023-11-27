@@ -13,7 +13,9 @@ local imports = {
     "opttest",
     "utiltest",
     "objectdescriptortest",
-    "characterdefaults"
+    "exp",
+    "exptest",
+    "characterdefaults",
 }
 
 for _, name in imports {
@@ -23,10 +25,30 @@ for _, name in imports {
 EnvSetup::run()
 Util::new()::setOptions()
 
+method runAllAddonTestSuites() {
+
+    local tests =
+    {
+        OptTest::new(),
+        AssertTest::new(),
+        UtilTest::new(),
+        ObjectDescriptorTest::new(),
+        ExpTest::new(),
+    }
+
+    local testFilter = nil
+    // testFilter = "testMMM"
+    TestRunner::run(tests, testFilter)
+}
+runAllAddonTestSuites()
+
+
 local charDef = CharacterDefaults::new()
 global saveCharDefaults = charDef.saveCharDefaults
 global loadCharDefaults = charDef.loadCharDefaults
 charDef::setDefaults()
+
+
 
 
 

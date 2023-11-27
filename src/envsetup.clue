@@ -20,7 +20,7 @@ method EnvSetup::run() {
         if obj::isDev() {
 
             global crawl = {}
-            method crawl::mpr(s) { print(s) }
+            method crawl::mpr(str) { print(str) }
             method crawl::setopt(s) {}
 
             global you = {}
@@ -35,23 +35,6 @@ method EnvSetup::run() {
         }
     }
     obj::setGlobals()
-
-    method obj::runTests() {
-
-        local tests =
-        {
-            OptTest::new(),
-            AssertTest::new(),
-            UtilTest::new()
-            ObjectDescriptorTest::new(),
-            // ExpTest::new()
-        }
-
-        local testFilter = nil
-        // testFilter = "testMMM"
-        TestRunner::run(tests, testFilter)
-    }
-    obj::runTests()
 
     return obj
 }
