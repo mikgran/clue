@@ -15,34 +15,23 @@ method Assert::new() {
     obj::init(context)
 
     method obj::equals(expected, candidate) {
-        if obj::isAllTables(expected, candidate) {
-            return obj::assertTablesEqual(expected, candidate)
+        local equals = false
+        if obj::isAllTables(expected, candidate) && obj::tablesEqual(expected, candidate) { 
+            equals = true
+        } elseif expected == candidate {
+            equals = true
         }
-        local state = false
-        if expected == candidate {
-            state = true
-        }
-        return obj::newResult("", (state ? obj.equalMsg : obj.notEqualMsg), expected, candidate, state)
-    }
-
-    // CONSIDER: removal
-    method obj::assertTablesEqual(expected, candidate) {
-        local state = true
-        if #expected != #candidate || !obj::tablesEqual(expected, candidate) {
-            state = false
-        }
-        return obj::newResult("", (state ? obj.equalMsg : obj.notEqualMsg), expected, candidate, state)
+        return obj::newResult("", (equals ? obj.equalMsg : obj.notEqualMsg), expected, candidate, equals)
     }
 
     method obj::notEquals(expected, candidate) {
-        if obj::isAllTables(expected, candidate) {
-            return !obj::tablesEqual(expected, candidate)
+        local notEquals = false
+        if obj::isAllTables(expected, candidate) && !obj::tablesEqual(expected, candidate) {
+            notEquals = true
+        } elseif expected != candidate {
+            notEquals = true
         }
-        local state = false
-        if expected != candidate {
-            state = true
-        }
-        return obj::newResult("", (state ? obj.notEqualMsg : obj.equalMsg), expected, candidate, state)
+        return obj::newResult("", (notEquals ? obj.notEqualMsg : obj.equalMsg), expected, candidate, notEquals)
     }
 
     return obj

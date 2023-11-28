@@ -45,5 +45,14 @@ method AssertTest::new() {
         return Assert::equals(expected, candidate)
     }
 
+    method obj::testAssertListsEqualsNot() {
+
+        local Assert = Assert::new()
+        local expected = { "abc" }
+        local candidate = { "def" }
+
+        return Assert::notEquals(expected, candidate)
+    }
+
     return obj
 }
