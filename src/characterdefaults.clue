@@ -1,4 +1,4 @@
-CharacterDefaults = {}
+global CharacterDefaults = {}
 
 method CharacterDefaults::new() {
 
