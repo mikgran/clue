@@ -1,4 +1,4 @@
-ObjectDescriptor = {}
+global ObjectDescriptor = {}
 
 method ObjectDescriptor::new() {
 
