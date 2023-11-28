@@ -92,7 +92,7 @@ method Util::new() {
         if obj::isAllTables(t1, t2) && #t1 == #t2 {
             isTablesEqual = true
             for k, v of t1 {
-                if t1[i] != t2[i] {             // every key found in both tables && they return same values
+                if t1[k] != t2[k] {             // every key found in both tables && they return same values
                     isTablesEqual = false
                     break
                 }
@@ -238,15 +238,23 @@ if !stripLetters {
 }
 
 if !split {
-    split = fn (str, sep) {
-        local r = {}
-        if str != nil && type(str) == "string" && sep != nil && type(sep) == "string" {
-            local regex = ("([^%s]+)")::format(sep)
-            for o with str::gmatch(regex) {
-                r[#r + 1] = o
+    split = fn (str, pat) {
+        local t = {}  // NOTE: use {n = 0} in Lua-5.0
+        local fpat = "(.-)" .. pat
+        local last_end = 1
+        local s, e, cap = str::find(fpat, 1)
+        while s {
+            if s != 1 || cap != "" {
+                t[#t + 1] = cap
             }
+            last_end = e+1
+            s, e, cap = str::find(fpat, last_end)
         }
-        return r
+        if last_end <= #str {
+            cap = str::sub(last_end)
+            t[#t + 1] = cap
+        }
+        return t
     }
 }
 
