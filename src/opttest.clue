@@ -220,6 +220,50 @@ method OptTest::new() {
         return obj.assert::equals(expected, candidate::get())
     }
 
+    method obj::testCat() {
+
+        local strs = { "1" }
+        local expected = { "1", "2", "a" }
+        local catTable = { "2", "a" }
+        local candidate = {}
+
+        Opt
+            ::of(strs)
+            ::cat(catTable)
+            ::with(fn(table) {
+                candidate = table
+            })
+
+        return obj.assert::equals(expected, candidate)
+    }
+
+    method obj::testPut() {
+
+        local strs = {}
+        strs.a = "1"
+        strs.b = "b"
+
+        local catTable = {}
+        catTable.a = "c"
+        catTable.c = "d"
+
+        local expected = {}
+        expected.a = catTable.a
+        expected.b = "b"
+        expected.c = "d"
+
+        local candidate = {}
+
+        Opt
+            ::of(strs)
+            ::put(catTable)
+            ::with(fn (table) {
+                candidate = table
+            })
+
+        return obj.assert::equals(expected, candidate)
+    }
+
     method obj::testWith() {
         local strs = { "1", "2", "3" }
         local expected = { "1", "2", "3" }

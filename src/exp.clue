@@ -27,17 +27,23 @@ method Exp::of(expChart) {
     }
 
     method obj::parseSkills(chart) {
-        local lines = Opt::of()
+
         obj.expChart = chart
+        local chunkSize = 101
 
-        Opt::
-            of(chart)::
-            flatMap(fn(_, all) { return split(all, "\n") })::
-            with(fn(table) { lines::use(table) })
+        local lines = Opt
+            ::of(chart)
+            ::flatMap(fn(_, all) {
+                local withoutLine1 = string.sub(all, 98)
+                local withoutLines1and2 = string.sub(withoutLine1, chunkSize)
+                return splitByChunk(withoutLines1and2, chunkSize)
+            })
 
-        Opt::
-            of(obj.otherSkills)::
-            forEach(fn(k, skillName) {
+        Opt
+            ::of(obj.otherSkills)
+            ::addAll(obj.rangedSkills)
+            ::addAll(obj.weaponSkills)
+            ::forEach(fn(k, skillName) {
                 lines::
                     filter(fn(_, line) { return string.find(line, skillName) })::
                     forEach(fn(_, line) { obj::parseSkill(line, skillName) })

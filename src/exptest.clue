@@ -27,7 +27,6 @@ Transmutations |                                                                
     obj::init()
 
     method obj::testCreating() {
-        mpr("HW")
         local exp = Exp::of(obj.expChart)
         local expected = { "3", "", "4", "5", "", "7", "8", "", "9", "12", "", "13", "15", "17", "19", "20", "22", "24",
             "25", "", "", "26", "27", "", "", "", "" }

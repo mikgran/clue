@@ -37,7 +37,7 @@ method runAllAddonTestSuites() {
     }
 
     local testFilter = nil
-    // testFilter = "testMMM"
+    // testFilter = "testTables"
     TestRunner::run(tests, testFilter)
 }
 runAllAddonTestSuites()

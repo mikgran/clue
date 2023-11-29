@@ -54,5 +54,20 @@ method AssertTest::new() {
         return Assert::notEquals(expected, candidate)
     }
 
+    method obj::testAssertListsNotEqualsWithNils() {
+
+        local Assert = Assert::new()
+
+        local expected = {}
+        expected.a = "abc"
+        expected.b = nil
+
+        local candidate = {}
+        candidate.a = "abc"
+        candidate.b = "def"
+
+        return Assert::notEquals(expected, candidate)
+    }
+
     return obj
 }

@@ -2,12 +2,13 @@ global UtilTest = {}
 
 method UtilTest::new() {
 
-    local obj = ObjectDescriptor::new()
+    local obj = ObjectDescriptor::new()  // tostring()
 
     method obj::init() {
         obj.name = "UtilTest"
         local u = Util::new()
         obj.isFunction = u.isFunction
+        obj.tablesEqual = u.tablesEqual
         obj.table1ContainsTable2 = u.table1ContainsTable2
     }
     obj::init()
@@ -32,7 +33,7 @@ method UtilTest::new() {
     }
 
     method obj::testTableContainsTable() {
-        
+
         local assert = Assert::new()
         local t1 = { "ab", "cd", "ef" }
         local t2 = { "ab", "cd" }
@@ -55,6 +56,25 @@ method UtilTest::new() {
         return assert::equals(expected, candidate)
     }
 
+    method obj::testTablesEqualNot() {
+
+        local assert = Assert::new()
+
+        local t1 = {}
+        t1.a = nil  // lua doesn't keep nil value keys.
+        t1.b = "2"
+        t1.c = "3"
+        local t2 = {}
+        t2.a = "1"
+        t2.b = "2"
+        t2.c = "3"
+        local expected = false
+        local candidate = obj::tablesEqual(t1, t2)
+
+        return assert::equals(expected, candidate)
+    }
+
+
 
     return obj
 }
@@ -63,7 +83,7 @@ return UtilTest
 
     /*
 
- 
+
 
     method obj::testTableContainsTableNot2()
         local assert = Assert::new()
@@ -136,23 +156,6 @@ return UtilTest
         local fn1 = nil
         local expected = false
         local candidate = obj::isAllDef("", fn1, method() return true })
-
-        return assert::equals(expected, candidate)
-    }
-
-    method obj::testTablesEqual()
-        local assert = Assert::new()
-
-        local t1 = {}
-        t1.a = "1"
-        t1.b = "2"
-        t1.c = "3"
-        local t2 = {}
-        t2.a = "1"
-        t2.b = "2"
-        t2.c = "3"
-        local expected = true
-        local candidate = obj::tablesEqual(t1, t2)
 
         return assert::equals(expected, candidate)
     }

@@ -35,7 +35,9 @@ method Opt::of(val) {
     obj::use(val)
 
     method obj::size() {
-        return #obj.tbl
+        local size = 0
+        for k, v of obj.tbl { size += 1 }
+        return size
     }
 
     method obj::set(k, v) {
@@ -48,6 +50,26 @@ method Opt::of(val) {
     method obj::add(o) {
         if o {
             obj.tbl[#obj.tbl + 1] = o
+        }
+        return self
+    }
+
+    method obj::cat(t) {
+        if t && obj::isTable(t) {
+            local size = obj::size()
+            for _, v of t {
+                size += 1
+                obj.tbl[size] = v
+            }
+        }
+        return self
+    }
+
+    method obj::put(t) {
+        if t && obj::isTable(t) {
+            for k, v of t {
+                obj.tbl[k] = v
+            }
         }
         return self
     }

@@ -84,17 +84,27 @@ method Util::new() {
     method obj::isTable(o) { return (o != nil && type(o) == "table") }
     method obj::isString(o) { return (o != nil && type(o) == "string") }
     method obj::isNumber(o) { return (o != nil && type(o) == "number") }
+    method obj::tableSize(tbl) {
+        local tblSize = 0
+        for k, v of tbl { tblSize += 1 }
+        return tblSize
+    }
 
-    // unrecursive shallow testing:: no table compares
+    // unrecursive shallow testing:: no sub table compares
     // every key in t1 must be found in t2 && they must return same the value
-    method obj::tablesEqual(t1, t2) {
+    method obj::tablesEqual(table1, table2) {
         local isTablesEqual = false
-        if obj::isAllTables(t1, t2) && #t1 == #t2 {
-            isTablesEqual = true
-            for k, v of t1 {
-                if t1[k] != t2[k] {             // every key found in both tables && they return same values
-                    isTablesEqual = false
-                    break
+        if obj::isAllTables(table1, table2) {
+            isTablesEqual = (obj::tableSize(table1) == obj::tableSize(table2))
+            if isTablesEqual {
+                for k, v of table1 {
+                    local table1value = table1[k]
+                    local table2value = table2[k]
+                    // every key found in both tables && they return same values
+                    if table1value != table2value || nil == table1value || nil == table2value {
+                        isTablesEqual = false
+                        break
+                    }
                 }
             }
         }
@@ -212,7 +222,7 @@ if !tableFilter {
     }
 }
 if !tableForEach {
-    tableForEach = fn (t, fn1) { 
+    tableForEach = fn (t, fn1) {
         if t != nil && type(t) == "table" && fn1 != nil && type(fn1) == "function" {
             for k, v of t {
                 fn1(k, v)
