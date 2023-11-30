@@ -33,7 +33,7 @@ method CharacterDefaults::new() {
         return msg
     }
 
-    
+
     method obj::saveSkills(skills) {
 
         for _, sk in skills {
@@ -62,7 +62,7 @@ method CharacterDefaults::new() {
     method obj::saveCharDefaults(quiet) {
 
         obj::updateCharCombo()
-        if you.class() == "Wanderer" {
+        if you::class() == "Wanderer" {
             return
         }
 

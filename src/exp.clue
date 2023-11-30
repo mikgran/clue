@@ -19,11 +19,11 @@ method Exp::of(expChart) {
     }
 
     method obj::parseSkill(line, name) {
-        Opt::
-            of(line)::
-            flatMap(fn(k, v) { return splitByChunk(split(v, "|")[2], 3) })::
-            map(fn(k, v) { return trim(v) })::
-            with(fn(v) { obj.skills::set(name, v) })
+        Opt
+            ::of(line)
+            ::flatMap(fn(k, v) { return splitByChunk(split(v, "|")[2], 3) })
+            ::map(fn(k, v) { return trim(v) })
+            ::with(fn(v) { obj.skills::set(name, v) })
     }
 
     method obj::parseSkills(chart) {

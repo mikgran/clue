@@ -13,6 +13,7 @@ method OptTest::new() {
     method obj::testMap() {
         local str = "111222"
         local expected = str .. str
+        local candidate = nil
         Opt::
             of(str)::
             map(fn (k, v) { return v .. v })::

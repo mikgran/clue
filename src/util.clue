@@ -64,14 +64,6 @@ method Util::new() {
     method obj::isDef(o) { return (o != nil) }
     method obj::isEmptyStr(o) { return (o == nil || o == "") }
 
-
-    method obj::eq(a, b) {
-        local isEqual = false
-        if obj::isDef(a) && obj::isDef(b) && a == b {
-            isEqual = true
-        }
-    }
-
     method obj::eq(a, b) {
         local isEqual = false
         if obj::isDef(a) && obj::isDef(b) && a == b {

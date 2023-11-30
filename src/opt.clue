@@ -16,16 +16,16 @@ method Opt::of(val) {
     }
     obj::init(val)
 
-    method obj::use(o) {
+    method obj::use(objectOrTable) {
 
-        if !obj::isNumber(o) && o?.get && o?.name == "Opt" {
-            obj::use(o::get())
+        if !obj::isNumber(objectOrTable) && objectOrTable?.get && objectOrTable?.name == "Opt" {
+            obj::use(objectOrTable::get())
         }
-        elseif obj::isTable(o) {
-            obj.tbl = o
+        elseif obj::isTable(objectOrTable) {
+            obj.tbl = objectOrTable
         }
-        elseif o {
-            obj.tbl = { o }
+        elseif objectOrTable {
+            obj.tbl = { objectOrTable }
         }
         else {
             obj.tbl = {}
@@ -40,24 +40,24 @@ method Opt::of(val) {
         return size
     }
 
-    method obj::set(k, v) {
-        if k && v {
-            obj.tbl[k] = v
+    method obj::set(key, value) {
+        if key && value {
+            obj.tbl[key] = value
         }
         return self
     }
 
-    method obj::add(o) {
-        if o {
-            obj.tbl[#obj.tbl + 1] = o
+    method obj::add(object) {
+        if object {
+            obj.tbl[#obj.tbl + 1] = object
         }
         return self
     }
 
-    method obj::cat(t) {
-        if t && obj::isTable(t) {
+    method obj::cat(table) {
+        if table && obj::isTable(table) {
             local size = obj::size()
-            for _, v of t {
+            for _, v of table {
                 size += 1
                 obj.tbl[size] = v
             }
@@ -65,21 +65,21 @@ method Opt::of(val) {
         return self
     }
 
-    method obj::put(t) {
-        if t && obj::isTable(t) {
-            for k, v of t {
+    method obj::put(table) {
+        if table && obj::isTable(table) {
+            for k, v of table {
                 obj.tbl[k] = v
             }
         }
         return self
     }
 
-    method obj::map(fn1) {
+    method obj::map(mapFn) {
         local allResults = {}
         local isResults = false
-        if obj::isFunction(fn1) {
+        if obj::isFunction(mapFn) {
             for k, v of obj.tbl {
-                local result = fn1(k, v)
+                local result = mapFn(k, v)
                 if result {
                     allResults[#allResults + 1] = result
                     isResults = true
@@ -94,24 +94,24 @@ method Opt::of(val) {
         }
     }
 
-    method obj::forEach(fn1) {
-        if obj::isFunction(fn1) {
+    method obj::forEach(forEachFn) {
+        if obj::isFunction(forEachFn) {
             for key, value of obj.tbl {
-                fn1(key, value)
+                forEachFn(key, value)
             }
         }
         return self
     }
 
-    method obj::filter(pr) {
+    method obj::filter(predicate) {
         local results = {}
 
-        if pr == nil || !obj::isFunction(pr) { // no op in malformed call
+        if predicate == nil || !obj::isFunction(predicate) { // no op in malformed call
             results = obj::get()
         }
         else {
             for k, v of obj.tbl {
-                if pr(k, v) {
+                if predicate(k, v) {
                     results[k] = v
                 }
             }
@@ -162,19 +162,19 @@ method Opt::of(val) {
         }
     }
 
-    method obj::with(fn1) {
-        if obj::isFunction(fn1) {
-            fn1(obj.tbl)
+    method obj::with(withFn) {
+        if obj::isFunction(withFn) {
+            withFn(obj.tbl)
         }
         return self
     }
 
-    method obj::flatMap(fn1) {
+    method obj::flatMap(flatMapFn) {
         local results = {}
         local isResults = false
-        if obj::isFunction(fn1) {
+        if obj::isFunction(flatMapFn) {
             for k, v of obj.tbl {
-                local mapped = fn1(k, v)
+                local mapped = flatMapFn(k, v)
                 if obj::isTable(mapped) {
                     for _, v2 of mapped {
                         results[#results + 1] = v2
@@ -210,11 +210,11 @@ method Opt::of(val) {
         return self
     }
 
-    method obj::reduce(fn1, acc) {
+    method obj::reduce(reduceFn, acc) {
         local a = acc
-        if obj::isFunction(fn1) && acc {
+        if obj::isFunction(reduceFn) && acc {
             for k, v of obj.tbl {
-                a = fn1(k, v, a)
+                a = reduceFn(k, v, a)
             }
         } else {
             return self

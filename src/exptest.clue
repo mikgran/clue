@@ -23,15 +23,112 @@ Dodging        |                                                                
 Stealth        |                                                                               |  1.4
 Transmutations |                                                                               |  0.8
 "
+        obj.exp = Exp::of(obj.expChart)
     }
     obj::init()
 
-    method obj::testCreating() {
-        local exp = Exp::of(obj.expChart)
-        local expected = { "3", "", "4", "5", "", "7", "8", "", "9", "12", "", "13", "15", "17", "19", "20", "22", "24",
-            "25", "", "", "26", "27", "", "", "", "" }
+    method obj::testParsingEM() {
 
-        local candidate = exp::get("Earth Magic")
+        local expected =
+        { [1] =  "3",
+          [2] =  "",
+          [3] =  "4",
+          [4] =  "5",
+          [5] =  "",
+          [6] =  "7",
+          [7] =  "8",
+          [8] =  "",
+          [9] =  "9",
+          [10] = "12",
+          [11] = "",
+          [12] = "13",
+          [13] = "15",
+          [14] = "17",
+          [15] = "19",
+          [16] = "20",
+          [17] = "22",
+          [18] = "24",
+          [19] = "25",
+          [20] = "",
+          [21] = "",
+          [22] = "26",
+          [23] = "27",
+          [24] = "",
+          [25] = "",
+          [26] = "",
+          [27] = ""}
+
+        local candidate = obj.exp::get("Earth Magic")
+
+        return obj.assert::equals(expected, candidate)
+    }
+
+    method obj::testParsingSC() {
+        local expected =
+        { [1] =  "",
+          [2] =  "",
+          [3] =  "",
+          [4] =  "",
+          [5] =  "",
+          [6] =  "",
+          [7] =  "4",
+          [8] =  "6",
+          [9] =  "",
+          [10] = "",
+          [11] = "",
+          [12] = "",
+          [13] = "10",
+          [14] = "12",
+          [15] = "",
+          [16] = "",
+          [17] = "",
+          [18] = "14",
+          [19] = "15",
+          [20] = "",
+          [21] = "19",
+          [22] = "20",
+          [23] = "",
+          [24] = "",
+          [25] = "",
+          [26] = "",
+          [27] = ""}
+
+        local candidate = obj.exp::get("Spellcasting")
+
+        return obj.assert::equals(expected, candidate)
+    }
+
+    method obj::testParsingCJ() {
+        local expected =
+        { [1] =  "",
+          [2] =  "",
+          [3] =  "",
+          [4] =  "",
+          [5] =  "",
+          [6] =  "",
+          [7] =  "",
+          [8] =  "5",
+          [9] =  "6",
+          [10] = "",
+          [11] = "",
+          [12] = "",
+          [13] = "",
+          [14] = "",
+          [15] = "",
+          [16] = "",
+          [17] = "",
+          [18] = "",
+          [19] = "",
+          [20] = "",
+          [21] = "",
+          [22] = "",
+          [23] = "",
+          [24] = "",
+          [25] = "",
+          [26] = "",
+          [27] = ""}
+
+        local candidate = obj.exp::get("Conjurations")
 
         return obj.assert::equals(expected, candidate)
     }
