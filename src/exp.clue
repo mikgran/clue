@@ -3,15 +3,12 @@ global Exp = {}
 method Exp::of(expChart) {
     local obj = ObjectDescriptor::new()
 
-    method obj::init() {
+    method obj::init(chart) {
         local util = Util::new()
-        obj.expChart = nil
-        obj.isEmptyStr = util.isEmptyStr
         obj.name = "Exp"
+        obj.isEmptyStr = util.isEmptyStr
         obj.skills = Opt::of()
-        obj.weaponSkills = Consts.weaponSkills
-        obj.rangedSkills = Consts.rangedSkills
-        obj.otherSkills = Consts.otherSkills
+        obj.expChart = chart
     }
 
     method obj::dump() {
@@ -28,8 +25,6 @@ method Exp::of(expChart) {
 
     method obj::parseSkills(chart) {
 
-        obj.expChart = chart
-
         local lines = Opt
             ::of(chart)
             ::flatMap(fn(_, all) {
@@ -39,9 +34,9 @@ method Exp::of(expChart) {
             })
 
         Opt
-            ::of(obj.otherSkills)
-            ::addAll(obj.rangedSkills)
-            ::addAll(obj.weaponSkills)
+            ::of(Consts.otherSkills)
+            ::addAll(Consts.rangedSkills)
+            ::addAll(Consts.weaponSkills)
             ::forEach(fn(k, skillName) {
                 lines::
                     filter(fn(_, line) { return string.find(line, skillName) })::
@@ -49,7 +44,7 @@ method Exp::of(expChart) {
             })
     }
 
-    obj::init()
+    obj::init(expChart)
     obj::parseSkills(expChart)
 
     method obj::get(skillName) {
