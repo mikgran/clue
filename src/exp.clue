@@ -23,20 +23,19 @@ method Exp::of(expChart) {
             ::of(line)
             ::flatMap(fn(k, v) { return splitByChunk(split(v, "|")[2], 3) })
             ::map(fn(k, v) { return trim(v) })
-            ::with(fn(v) { obj.skills::set(name, v) })
+            ::with(fn(table) { obj.skills::set(name, table) })
     }
 
     method obj::parseSkills(chart) {
 
         obj.expChart = chart
-        local chunkSize = 101
 
         local lines = Opt
             ::of(chart)
             ::flatMap(fn(_, all) {
                 local withoutLine1 = string.sub(all, 98)
-                local withoutLines1and2 = string.sub(withoutLine1, chunkSize)
-                return splitByChunk(withoutLines1and2, chunkSize)
+                local withoutLines1and2 = string.sub(withoutLine1, 101)
+                return splitByChunk(withoutLines1and2, 101)
             })
 
         Opt
