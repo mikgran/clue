@@ -126,26 +126,16 @@ method UtilTest::new() {
         return assert::equals(expected, candidate)
     }
 
-    return obj
-}
-
-return UtilTest
-
-    /*
-
-
     method obj::testIsAllDefNot() {
-        local assert = Assert::new()
 
         local fn1 = nil
         local expected = false
-        local candidate = obj::isAllDef("", fn1, method() return true })
+        local candidate = util::isAllDef("", fn1, fn() { return true })
 
         return assert::equals(expected, candidate)
     }
 
     method obj::testTablesEqualNotWithDifferentKeys() {
-        local assert = Assert::new()
 
         local t1 = {}
         t1.a = "1"
@@ -156,13 +146,12 @@ return UtilTest
         t2.b = "2"
         t2.d = "3"
         local expected = false
-        local candidate = obj::tablesEqual(t1, t2)
+        local candidate = util::tablesEqual(t1, t2)
 
         return assert::equals(expected, candidate)
     }
 
     method obj::testTablesEqualNotWithDifferentValues() {
-        local assert = Assert::new()
 
         local t1 = {}
         t1.a = "1"
@@ -173,12 +162,12 @@ return UtilTest
         t2.b = "2"
         t2.c = "10"
         local expected = false
-        local candidate = obj::tablesEqual(t1, t2)
+        local candidate = util::tablesEqual(t1, t2)
 
         return assert::equals(expected, candidate)
     }
 
     return obj
 }
-*/
 
+return UtilTest
