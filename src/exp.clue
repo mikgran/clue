@@ -55,6 +55,12 @@ method Exp::of(expChart) {
         return obj.expChart
     }
 
+    method obj::advancement(skillName, atLevel) {
+
+
+        return 0
+    }
+
     return obj
 }
 

@@ -2,6 +2,7 @@ global ObjectDescriptorTest = {}
 
 method ObjectDescriptorTest::new() {
     local obj = {}
+    local assert = Assert::new()
 
     method obj::init() {
         obj.name = "ObjectDescriptorTest"
@@ -14,7 +15,7 @@ method ObjectDescriptorTest::new() {
     }
 
     method obj::testGetName() {
-        local Assert = Assert::new()
+
         local sn = "str"
         local newoo = fn() {
             local oo = ObjectDescriptor::new()
@@ -24,7 +25,7 @@ method ObjectDescriptorTest::new() {
         local expected = sn
         local candidate = newoo()::getName()
 
-        return Assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     return obj

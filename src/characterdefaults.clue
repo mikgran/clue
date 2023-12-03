@@ -2,7 +2,6 @@ global CharacterDefaults = {}
 
 method CharacterDefaults::new() {
 
-
     local obj = {}
 
     method obj::init() {
@@ -14,7 +13,6 @@ method CharacterDefaults::new() {
         obj.loadAttempted = false
     }
     obj::init()
-
 
     method obj::skillMessage(prefix, skill, skillType, value) {
         local msg = ""
@@ -32,7 +30,6 @@ method CharacterDefaults::new() {
 
         return msg
     }
-
 
     method obj::saveSkills(skills) {
 

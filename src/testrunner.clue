@@ -38,8 +38,11 @@ method TestRunner::run(table, filter) {
                         }
                         return keyFound
                     })::
-                    forEach(fn (fnName, fn1) {
-                        local tr = fn1()
+                    forEach(fn (fnName, testFn) {
+                        local tr = testFn()
+                        if !tr {
+                            tr = TestResult::new("", "", "testFunction did not return: TestResult.", "n/a", false)
+                        }
                         tr::setTestName(fnName || "")
                         results::add(tr)
                         resultMessages::add("\n" .. tr::tostring())

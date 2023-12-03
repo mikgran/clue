@@ -2,10 +2,10 @@ global OptTest = {}
 
 method OptTest::new() {
     local obj = ObjectDescriptor::new()
+    local assert = Assert::new()
 
     method obj::init() {
         obj.name = "OptTest"
-        obj.assert = Assert::new()
     }
     obj::init()
 
@@ -19,7 +19,7 @@ method OptTest::new() {
             map(fn (k, v) { return v .. v })::
             with(fn (v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testMapValueWithNilfn() {
@@ -34,7 +34,7 @@ method OptTest::new() {
                 candidate = tbl[1]
             })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testMapValueWithNotAfn() {
@@ -47,7 +47,7 @@ method OptTest::new() {
             map("ssss")::
             with(fn (v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testMapNilValue() {
@@ -60,7 +60,7 @@ method OptTest::new() {
             map(fn (k, v) { return v .. v })::
             with(fn (v) { candidate = v[1] })
 
-        return obj.assert::equals(tostring(expected), tostring(candidate))
+        return assert::equals(tostring(expected), tostring(candidate))
     }
 
 
@@ -74,7 +74,7 @@ method OptTest::new() {
             mapc("return v..v")::
             with(fn (v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
 
@@ -88,7 +88,7 @@ method OptTest::new() {
             mapc()::
             with(fn (v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testMapcWithNilValue() {
@@ -101,7 +101,7 @@ method OptTest::new() {
             mapc("return it")::
             with(fn (v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testUse() {
@@ -114,7 +114,7 @@ method OptTest::new() {
             use("cde")::
             with(fn (v) {candidate = v[1]})
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testUseWithNil() {
@@ -127,7 +127,7 @@ method OptTest::new() {
             use(nil)::
             with(fn (v) {candidate = v[1]})
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
 
@@ -140,7 +140,7 @@ method OptTest::new() {
             use("abc")::
             with(fn (v) {candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
 
@@ -154,7 +154,7 @@ method OptTest::new() {
             filter(fn (k, v) {return type(v) == "string"})::
             with(fn (v) {candidate = v[1]})
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testFilter2() {
@@ -167,7 +167,7 @@ method OptTest::new() {
             filter(fn (k, v) {return (type(v) == "fn")})::
             with(fn (v) {candidate = v[1]})
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testFilter3() {
@@ -180,7 +180,7 @@ method OptTest::new() {
             filter(fn(k, v) { return type(v) == "fn" })::
             with(fn(v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testFilterWithNilPredicate() {
@@ -193,7 +193,7 @@ method OptTest::new() {
             filter()::
             with(fn(v) { candidate = v[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testForEachWithSimpleValue() {
@@ -205,7 +205,7 @@ method OptTest::new() {
             of(str)::
             forEach(fn(k, v) { candidate = candidate .. v })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
 
@@ -218,7 +218,7 @@ method OptTest::new() {
             of(strs)::
             forEach(fn(k, v) { candidate::add(v) })
 
-        return obj.assert::equals(expected, candidate::get())
+        return assert::equals(expected, candidate::get())
     }
 
     method obj::testCat() {
@@ -235,7 +235,7 @@ method OptTest::new() {
                 candidate = table
             })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testPut() {
@@ -262,7 +262,7 @@ method OptTest::new() {
                 candidate = table
             })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testWith() {
@@ -274,7 +274,7 @@ method OptTest::new() {
             of(strs)::
             with(fn(table) { candidate = table })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testFlatMap() {
@@ -287,7 +287,7 @@ method OptTest::new() {
             flatMap(fn(k, v) { return split(v, ",") })::
             forEach(fn(k, v) { candidate[#candidate + 1] = v })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testAddAll() {
@@ -302,7 +302,7 @@ method OptTest::new() {
                 candidate = table
             })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testFlatMapWithIdent() {
@@ -316,7 +316,7 @@ method OptTest::new() {
             flatMap(fn(_, v) { return split(v, ",") })::
             forEach(fn(_, v) { candidate[#candidate + 1] = v })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testReduce() {
@@ -330,7 +330,7 @@ method OptTest::new() {
             reduce(fn (k, v, a) { return a + v  }, 0)::
             with(fn (t) { candidate = t[1] })
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
 

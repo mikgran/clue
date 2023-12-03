@@ -2,9 +2,10 @@ global ExpTest = {}
 
 method ExpTest::new() {
     local obj = ObjectDescriptor::new()
+    local assert = Assert::new()
 
     method obj::init() {
-        obj.assert = Assert::new()
+
         obj.name = "ExpTest"
         obj.expChart = "
 Skill      XL: |  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 |
@@ -60,7 +61,7 @@ Transmutations |                                                                
 
         local candidate = obj.exp::get("Earth Magic")
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testParsingSC() {
@@ -95,7 +96,7 @@ Transmutations |                                                                
 
         local candidate = obj.exp::get("Spellcasting")
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
 
     method obj::testParsingCJ() {
@@ -130,8 +131,18 @@ Transmutations |                                                                
 
         local candidate = obj.exp::get("Conjurations")
 
-        return obj.assert::equals(expected, candidate)
+        return assert::equals(expected, candidate)
     }
+
+    method obj::testCalculateSkillAdvancement() {
+
+        local expected = 0.5
+
+        local candidate = obj.exp::advancement("Earth Magic", 1)
+
+        return assert::equals(expected, candidate)
+    }
+
 
     return obj
 }

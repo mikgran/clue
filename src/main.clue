@@ -42,7 +42,6 @@ method runAllAddonTestSuites() {
 }
 runAllAddonTestSuites()
 
-
 local charDef = CharacterDefaults::new()
 global saveCharDefaults = charDef.saveCharDefaults
 global loadCharDefaults = charDef.loadCharDefaults
