@@ -3,11 +3,7 @@ global ExpTest = {}
 method ExpTest::new() {
     local obj = ObjectDescriptor::new()
     local assert = Assert::new()
-
-    method obj::init() {
-
-        obj.name = "ExpTest"
-        obj.expChart = "
+    local expChart = "
 Skill      XL: |  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 |
 ---------------+-------------------------------------------------------------------------------+-----
 Earth Magic    |  3     4  5     7  8     9 12    13 15 17 19 20 22 24 25       26 27          | 27.0
@@ -24,7 +20,10 @@ Dodging        |                                                                
 Stealth        |                                                                               |  1.4
 Transmutations |                                                                               |  0.8
 "
-        obj.exp = Exp::of(obj.expChart)
+  local exp = Exp::of(expChart)
+
+    method obj::init() {
+        obj.name = "ExpTest"
     }
     obj::init()
 
@@ -59,7 +58,7 @@ Transmutations |                                                                
           [26] = "",
           [27] = ""}
 
-        local candidate = obj.exp::get("Earth Magic")
+        local candidate = exp::get("Earth Magic")
 
         return assert::equals(expected, candidate)
     }
@@ -94,7 +93,7 @@ Transmutations |                                                                
           [26] = "",
           [27] = ""}
 
-        local candidate = obj.exp::get("Spellcasting")
+        local candidate = exp::get("Spellcasting")
 
         return assert::equals(expected, candidate)
     }
@@ -129,20 +128,23 @@ Transmutations |                                                                
           [26] = "",
           [27] = ""}
 
-        local candidate = obj.exp::get("Conjurations")
+        local candidate = exp::get("Conjurations")
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testCalculateSkillAdvancement() {
+    // method obj::testCalculateSkillAdvancement() {
+    //     local expected = 0.5
+    //     local candidate = exp::advancementFor("Earth Magic", 1)
+    //     return assert::equals(expected, candidate)
+    // }
 
-        local expected = 0.5
+    method obj::testCalculateSkillAdvancement2() {
 
-        local candidate = obj.exp::advancement("Earth Magic", 1)
-
-        return assert::equals(expected, candidate)
-    }
-
+      local expected = 8 / 13
+      local candidate = exp::advancementFor("Fighting", 11)
+      return assert::equals(expected, candidate)
+  }
 
     return obj
 }

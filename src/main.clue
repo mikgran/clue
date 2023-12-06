@@ -16,6 +16,8 @@ local imports = {
     "exp",
     "exptest",
     "characterdefaults",
+    "iter",
+    "itertest",
 }
 
 for _, name in imports {
@@ -34,10 +36,12 @@ method runAllAddonTestSuites() {
         UtilTest::new(),
         ObjectDescriptorTest::new(),
         ExpTest::new(),
+        IterTest::new(),
     }
 
     local testFilter = nil
-    // testFilter = "testTables"
+    // testFilter = "testIter"
+    // testFilter = "testCalc"
     TestRunner::run(tests, testFilter)
 }
 runAllAddonTestSuites()
@@ -46,6 +50,7 @@ local charDef = CharacterDefaults::new()
 global saveCharDefaults = charDef.saveCharDefaults
 global loadCharDefaults = charDef.loadCharDefaults
 charDef::setDefaults()
+
 
 
 

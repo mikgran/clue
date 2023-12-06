@@ -3,25 +3,19 @@ global Opt = {}
 method Opt::of(val) {
 
     local obj = ObjectDescriptor::new()
+    local util = Util::new()
 
     method obj::init(o) {
         obj.name = "Opt"
-        local util = Util::new()
-        obj.isEmptyStr = util.isEmptyStr
-        obj.isFunction = util.isFunction
-        obj.isDef = util.isDef
-        obj.isTable = util.isTable
-        obj.isAllDef = util.isAllDef
-        obj.isNumber = util.isNumber
     }
     obj::init(val)
 
     method obj::use(objectOrTable) {
 
-        if !obj::isNumber(objectOrTable) && objectOrTable?.get && objectOrTable?.name == "Opt" {
+        if !util::isNumber(objectOrTable) && objectOrTable?.get && objectOrTable?.name == "Opt" {
             obj::use(objectOrTable::get())
         }
-        elseif obj::isTable(objectOrTable) {
+        elseif util::isTable(objectOrTable) {
             obj.tbl = objectOrTable
         }
         elseif objectOrTable {
@@ -55,7 +49,7 @@ method Opt::of(val) {
     }
 
     method obj::cat(table) {
-        if table && obj::isTable(table) {
+        if table && util::isTable(table) {
             local size = obj::size()
             for _, v of table {
                 size += 1
@@ -66,7 +60,7 @@ method Opt::of(val) {
     }
 
     method obj::put(table) {
-        if table && obj::isTable(table) {
+        if table && util::isTable(table) {
             for k, v of table {
                 obj.tbl[k] = v
             }
@@ -77,7 +71,7 @@ method Opt::of(val) {
     method obj::map(mapFn) {
         local allResults = {}
         local isResults = false
-        if obj::isFunction(mapFn) {
+        if util::isFunction(mapFn) {
             for k, v of obj.tbl {
                 local result = mapFn(k, v)
                 if result {
@@ -95,7 +89,7 @@ method Opt::of(val) {
     }
 
     method obj::forEach(forEachFn) {
-        if obj::isFunction(forEachFn) {
+        if util::isFunction(forEachFn) {
             for key, value of obj.tbl {
                 forEachFn(key, value)
             }
@@ -106,7 +100,7 @@ method Opt::of(val) {
     method obj::filter(predicate) {
         local results = {}
 
-        if predicate == nil || !obj::isFunction(predicate) { // no op in malformed call
+        if predicate == nil || !util::isFunction(predicate) { // no op in malformed call
             results = obj::get()
         }
         else {
@@ -124,7 +118,7 @@ method Opt::of(val) {
         local mapped = {}
         local isResults = false
 
-        if ( !obj::isEmptyStr(code)) {
+        if ( !util::isEmptyStr(code)) {
             // two return calls
             // function() return function() return %s end end
             local codeString = string.format("return function(k, v) %s end", code)
@@ -162,9 +156,42 @@ method Opt::of(val) {
         }
     }
 
-    method obj::with(withFn) {
-        if obj::isFunction(withFn) {
-            withFn(obj.tbl)
+    method obj::apply(applyFn) {
+        if util::isFunction(applyFn) {
+            applyFn(obj.tbl)
+        }
+        return self
+    }
+
+    method obj::some(someFn) {
+        if obj::size() > 0 && util::isFunction(someFn) {
+            someFn(obj.tbl)
+        }
+        return self
+    }
+
+    method obj::none(noneFn) {
+        if obj::size() == 0 && util::isFunction(noneFn) {
+            noneFn(obj.tbl)
+        }
+        return self
+    }
+
+    method obj::take(numberOfElements) {
+
+        if util::isNumber(numberOfElements) {
+
+            local i = 0
+            local newList = Opt::of()
+            for k, v of obj.tbl {
+
+                newList::set(k, v)
+                i += 1
+                if i >= numberOfElements {
+                    break
+                }
+            }
+            obj::use(newList)
         }
         return self
     }
@@ -172,10 +199,10 @@ method Opt::of(val) {
     method obj::flatMap(flatMapFn) {
         local results = {}
         local isResults = false
-        if obj::isFunction(flatMapFn) {
+        if util::isFunction(flatMapFn) {
             for k, v of obj.tbl {
                 local mapped = flatMapFn(k, v)
-                if obj::isTable(mapped) {
+                if util::isTable(mapped) {
                     for _, v2 of mapped {
                         results[#results + 1] = v2
                         isResults = true
@@ -191,7 +218,7 @@ method Opt::of(val) {
             return Opt::of(results)
         }
         else {
-            return Opt::of(obj::get())
+            return self
         }
     }
 
@@ -202,7 +229,7 @@ method Opt::of(val) {
 
     // keeps existing keys
     method obj::addAll(table) {
-        if obj::isTable(table) {
+        if util::isTable(table) {
             for key, value of table {
                 obj.tbl[#obj.tbl + 1] = value
             }
@@ -212,7 +239,7 @@ method Opt::of(val) {
 
     method obj::reduce(reduceFn, acc) {
         local a = acc
-        if obj::isFunction(reduceFn) && acc {
+        if util::isFunction(reduceFn) && acc {
             for k, v of obj.tbl {
                 a = reduceFn(k, v, a)
             }
@@ -222,6 +249,51 @@ method Opt::of(val) {
         return Opt::of(a)
     }
 
+    method obj::slice(fromIndex, toIndex) {
+
+        if util::isNumber(fromIndex) && util::isNumber(toIndex) && obj::size() > 0 {
+
+            local upperBoundary = obj::size()
+            if fromIndex > toIndex { fromIndex = toIndex }
+            if fromIndex > upperBoundary { fromIndex = upperBoundary }
+            if fromIndex < 1 { fromIndex = 1 }
+
+            if toIndex < fromIndex { toIndex = fromIndex }
+            if toIndex > upperBoundary { toIndex = upperBoundary }
+            if toIndex < 1 { toIndex = 1 }
+
+            local newList = Opt::of()
+            local i = fromIndex
+            loop {
+                newList::add(obj.tbl[i])
+                i += 1
+            } until i > toIndex
+            obj::use(newList)
+        }
+        return self
+    }
+
+    method obj::iter() {
+        return Iter::new(obj.tbl)
+    }
+
+    method obj::forIter(iteratorConsumerFn) {
+        if util::isFunction(iteratorConsumerFn) {
+
+            iteratorConsumerFn(Iter::new(obj.tbl))
+        }
+        return self
+    }
+
+    method obj::keysOrdered(orderedKeysConsumerFn) {
+        local byKeys = {}
+        for k, _ of obj.tbl { table.insert(byKeys, k) }
+        table.sort(byKeys)
+        for _, v of byKeys {
+            orderedKeysConsumerFn(v, obj.tbl[v])
+        }
+        return self
+    }
 
     return obj
 }

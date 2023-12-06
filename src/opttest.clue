@@ -17,12 +17,12 @@ method OptTest::new() {
         Opt::
             of(str)::
             map(fn (k, v) { return v .. v })::
-            with(fn (v) { candidate = v[1] })
+            apply(fn (v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testMapValueWithNilfn() {
+    method obj::testMapValueapplyNilfn() {
         local str = "111222"
         local expected = str
         local candidate = nil
@@ -30,14 +30,14 @@ method OptTest::new() {
         Opt::
             of(str)::
             map()::
-            with(fn (tbl) {
+            apply(fn (tbl) {
                 candidate = tbl[1]
             })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testMapValueWithNotAfn() {
+    method obj::testMapValueapplyNotAfn() {
         local str = "111222"
         local expected = str
         local candidate = nil
@@ -45,7 +45,7 @@ method OptTest::new() {
         Opt::
             of(str)::
             map("ssss")::
-            with(fn (v) { candidate = v[1] })
+            apply(fn (v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
@@ -58,7 +58,7 @@ method OptTest::new() {
         Opt::
             of(str)::
             map(fn (k, v) { return v .. v })::
-            with(fn (v) { candidate = v[1] })
+            apply(fn (v) { candidate = v[1] })
 
         return assert::equals(tostring(expected), tostring(candidate))
     }
@@ -72,13 +72,13 @@ method OptTest::new() {
         Opt::
             of(str)::
             mapc("return v..v")::
-            with(fn (v) { candidate = v[1] })
+            apply(fn (v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
 
 
-    method obj::testMapcWithNilfn() {
+    method obj::testMapcapplyNilfn() {
         local str = "abc"
         local expected = str
         local candidate = nil
@@ -86,12 +86,12 @@ method OptTest::new() {
         Opt::
             of(str)::
             mapc()::
-            with(fn (v) { candidate = v[1] })
+            apply(fn (v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testMapcWithNilValue() {
+    method obj::testMapcapplyNilValue() {
         local str = nil
         local expected = nil
         local candidate = nil
@@ -99,7 +99,7 @@ method OptTest::new() {
         Opt::
             of(str)::
             mapc("return it")::
-            with(fn (v) { candidate = v[1] })
+            apply(fn (v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
@@ -112,12 +112,12 @@ method OptTest::new() {
         Opt::
             of(str)::
             use("cde")::
-            with(fn (v) {candidate = v[1]})
+            apply(fn (v) {candidate = v[1]})
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testUseWithNil() {
+    method obj::testUseapplyNil() {
         local str = "abc"
         local expected = nil
         local candidate = nil
@@ -125,7 +125,7 @@ method OptTest::new() {
         Opt::
             of(str)::
             use(nil)::
-            with(fn (v) {candidate = v[1]})
+            apply(fn (v) {candidate = v[1]})
 
         return assert::equals(expected, candidate)
     }
@@ -138,7 +138,7 @@ method OptTest::new() {
         Opt::
             of(nil)::
             use("abc")::
-            with(fn (v) {candidate = v[1] })
+            apply(fn (v) {candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
@@ -152,7 +152,7 @@ method OptTest::new() {
         Opt::
             of(str)::
             filter(fn (k, v) {return type(v) == "string"})::
-            with(fn (v) {candidate = v[1]})
+            apply(fn (v) {candidate = v[1]})
 
         return assert::equals(expected, candidate)
     }
@@ -165,7 +165,7 @@ method OptTest::new() {
         Opt::
             of(str)::
             filter(fn (k, v) {return (type(v) == "fn")})::
-            with(fn (v) {candidate = v[1]})
+            apply(fn (v) {candidate = v[1]})
 
         return assert::equals(expected, candidate)
     }
@@ -178,12 +178,12 @@ method OptTest::new() {
         Opt::
             of(str)::
             filter(fn(k, v) { return type(v) == "fn" })::
-            with(fn(v) { candidate = v[1] })
+            apply(fn(v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testFilterWithNilPredicate() {
+    method obj::testFilterapplyNilPredicate() {
         local str = "abc"
         local expected = "abc"
         local candidate = nil
@@ -191,12 +191,12 @@ method OptTest::new() {
         Opt::
             of(str)::
             filter()::
-            with(fn(v) { candidate = v[1] })
+            apply(fn(v) { candidate = v[1] })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testForEachWithSimpleValue() {
+    method obj::testForEachapplySimpleValue() {
         local str = "abc"
         local expected = "abc"
         local candidate = ""
@@ -209,7 +209,7 @@ method OptTest::new() {
     }
 
 
-    method obj::testForEachWithTable() {
+    method obj::testForEachapplyTable() {
         local strs = { "1", "2", "3" }
         local expected = { "1", "2", "3" }
         local candidate = Opt::of()
@@ -231,7 +231,7 @@ method OptTest::new() {
         Opt
             ::of(strs)
             ::cat(catTable)
-            ::with(fn(table) {
+            ::apply(fn(table) {
                 candidate = table
             })
 
@@ -258,21 +258,21 @@ method OptTest::new() {
         Opt
             ::of(strs)
             ::put(catTable)
-            ::with(fn (table) {
+            ::apply(fn (table) {
                 candidate = table
             })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testWith() {
+    method obj::testapply() {
         local strs = { "1", "2", "3" }
         local expected = { "1", "2", "3" }
         local candidate = {}
 
         Opt::
             of(strs)::
-            with(fn(table) { candidate = table })
+            apply(fn(table) { candidate = table })
 
         return assert::equals(expected, candidate)
     }
@@ -298,14 +298,14 @@ method OptTest::new() {
         Opt::
             of(strs)::
             addAll({ "1", "2", "3" })::
-            with(fn (table) {
+            apply(fn (table) {
                 candidate = table
             })
 
         return assert::equals(expected, candidate)
     }
 
-    method obj::testFlatMapWithIdent() {
+    method obj::testFlatMapapplyIdent() {
         local strs = { { "a,b,c" }, { "t,u,v" } }
         local expected = { "a", "b", "c", "t", "u", "v" }
         local candidate = {}
@@ -328,11 +328,307 @@ method OptTest::new() {
         Opt::
             of(strs)::
             reduce(fn (k, v, a) { return a + v  }, 0)::
-            with(fn (t) { candidate = t[1] })
+            apply(fn (t) { candidate = t[1] })
 
         return assert::equals(expected, candidate)
     }
 
+    method obj::testSlice1() {
+
+        local candidate
+        local expected = { 5, 10, 15 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(1, 3)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSlice2() {
+
+        local candidate
+        local expected = { 5, 10, 15, 20, 25 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(1, 5)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSliceLowerBoundary1() {
+
+        local candidate
+        local expected = { 5 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(0, 0)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSliceLowerBoundary2() {
+
+        local candidate
+        local expected = { 5 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(4, 0)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSliceUpperBoundary3() {
+
+        local candidate
+        local expected = { 25 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(6, 6)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSliceUpperBoundary4() {
+
+        local candidate
+        local expected = { 5, 10, 15, 20 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(0, 4)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSlice3() {
+
+        local candidate
+        local expected = { 10, 15, 20 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(2, 4)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSlice4() {
+
+        local candidate
+        local expected = { 20, 25 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(4, 5)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSliceULInvalidBoundary() {
+
+        local candidate
+        local expected = { 5 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(6, 0)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSliceULInvalidBoundary2() {
+
+        local candidate
+        local expected = { 5, 10, 15, 20, 25 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::slice(0, 6)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSome() {
+
+        local candidate
+        local expected = { 5, 10, 15, 20, 25 }
+        Opt
+            ::of({ 5, 10, 15, 20, 25 })
+            ::some(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testSome2() {
+
+        local candidate = nil
+        local expected = nil
+        Opt
+            ::of()
+            ::some(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testNone() {
+
+        local candidate
+        local expected = { 1 }
+        Opt
+            ::of( { 1 } )
+            ::none(fn (table) {
+                candidate = { 1, 2, 3 }
+            })
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testNone2() {
+
+        local candidate
+        local expected = { 1, 2, 3 }
+        Opt
+            ::of()
+            ::none(fn (table) {
+                candidate = { 1, 2, 3 }
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testTake() {
+
+        local candidate
+        local expected = { 1, 2 }
+        Opt
+            ::of( { 1, 2, 3, 4, 5, 6, 7, 8 } )
+            ::take(2)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testTakeWithNil() {
+
+        local candidate
+        local expected = { 1, 2, 3, 4, 5, 6, 7, 8 }
+        Opt
+            ::of( { 1, 2, 3, 4, 5, 6, 7, 8 } )
+            ::take()
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testTakeWithZero() {
+
+        local candidate
+        local expected = { 1 }
+        Opt
+            ::of( { 1, 2, 3, 4, 5, 6, 7, 8 } )
+            ::take(0)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testTakeWithNumberHigherThanCapacity() {
+
+        local candidate
+        local expected = { 1, 2, 3, 4, 5, 6, 7, 8 }
+        Opt
+            ::of( { 1, 2, 3, 4, 5, 6, 7, 8 } )
+            ::take(100)
+            ::apply(fn (table) {
+                candidate = table
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testIter() {
+
+        local candidate
+        local expected = 2
+
+        local iter = Opt
+            ::of( { 1, 2, 3 } )
+            ::iter()
+
+        iter::next()
+        local k, v = iter::next()
+        candidate = v
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testIterWithConsumer() {
+
+        local candidate
+        local expected = 2
+
+        Opt
+            ::of( { 1, 2, 3 } )
+            ::forIter(fn (iter) {
+                iter::next()
+                local _, v = iter::next()
+                candidate = v
+            })
+
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testKeysOrdered() {
+
+        local candidate = Opt::of()
+        local expected = Opt::of({ "13", "21", "35" })
+
+        Opt
+            ::of( { [3] = 5, [1] = 3, [2] = 1 } )
+            ::keysOrdered(fn (k, v) {
+                candidate::add((tostring(k) .. tostring(v)))
+            })
+
+        return assert::equals(expected::get(), candidate::get())
+    }
 
     return obj
 }

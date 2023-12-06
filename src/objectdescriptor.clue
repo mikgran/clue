@@ -13,7 +13,7 @@ method ObjectDescriptor::new() {
 
         local addToTable = fn (tbl, key, val) {
             tbl[#tbl + 1] = string.format("\n  %s: %s", tostring(key), val)
-        }        
+        }
         local sbcat = fn (sb, tbl) {
             local s = sb
             for _, v in tbl {
