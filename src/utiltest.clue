@@ -167,6 +167,39 @@ method UtilTest::new() {
         return assert::equals(expected, candidate)
     }
 
+    method obj::testEnsureIndex() {
+        local t1 = {}
+        t1.a = "1"
+        t1.b = "2"
+        t1.c = "3"
+        local expected = 3
+        local index = 10
+        local candidate = util::ensureIndex(util::tableSize(t1), index)
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testEnsureIndex2() {
+        local t1 = {}
+        t1.a = "1"
+        t1.b = "2"
+        t1.c = "3"
+        local expected = 1
+        local index = 0
+        local candidate = util::ensureIndex(util::tableSize(t1), index)
+        return assert::equals(expected, candidate)
+    }
+
+    method obj::testEnsureIndex3() {
+        local t1 = {}
+        t1.a = "1"
+        t1.b = "2"
+        t1.c = "3"
+        local expected = 2
+        local index = 2
+        local candidate = util::ensureIndex(util::tableSize(t1), index)
+        return assert::equals(expected, candidate)
+    }
+
     return obj
 }
 

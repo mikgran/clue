@@ -49,7 +49,7 @@ method Opt::of(val) {
     }
 
     method obj::cat(table) {
-        if table && util::isTable(table) {
+        if util::isTable(table) {
             local size = obj::size()
             for _, v of table {
                 size += 1
@@ -60,7 +60,7 @@ method Opt::of(val) {
     }
 
     method obj::put(table) {
-        if table && util::isTable(table) {
+        if util::isTable(table) {
             for k, v of table {
                 obj.tbl[k] = v
             }
@@ -80,12 +80,8 @@ method Opt::of(val) {
                 }
             }
         }
-        if isResults {
-            return Opt::of(allResults)
-        }
-        else {
-            return Opt::of(obj::get())
-        }
+        if isResults { return Opt::of(allResults) }
+        else { return self }
     }
 
     method obj::forEach(forEachFn) {
@@ -118,7 +114,7 @@ method Opt::of(val) {
         local mapped = {}
         local isResults = false
 
-        if ( !util::isEmptyStr(code)) {
+        if (!util::isEmptyStr(code)) {
             // two return calls
             // function() return function() return %s end end
             local codeString = string.format("return function(k, v) %s end", code)
@@ -131,7 +127,7 @@ method Opt::of(val) {
             return Opt::of(mapped)
         }
         else {
-            return Opt::of(obj::get())
+            return self
         }
     }
 
@@ -177,15 +173,19 @@ method Opt::of(val) {
         return self
     }
 
+    method obj::sortKeys() {
+        local byKeys = {}
+        for k, _ of obj.tbl { table.insert(byKeys, k) }
+        table.sort(byKeys)
+        return byKeys
+    }
+
     method obj::take(numberOfElements) {
-
         if util::isNumber(numberOfElements) {
-
             local i = 0
             local newList = Opt::of()
-            for k, v of obj.tbl {
-
-                newList::set(k, v)
+            for _, v of obj::sortKeys() {
+                newList::set(v, obj.tbl[v])
                 i += 1
                 if i >= numberOfElements {
                     break
@@ -214,12 +214,8 @@ method Opt::of(val) {
                 }
             }
         }
-        if isResults {
-            return Opt::of(results)
-        }
-        else {
-            return self
-        }
+        if isResults { return Opt::of(results) }
+        else { return self }
     }
 
     method obj::dump() {
@@ -253,14 +249,11 @@ method Opt::of(val) {
 
         if util::isNumber(fromIndex) && util::isNumber(toIndex) && obj::size() > 0 {
 
-            local upperBoundary = obj::size()
+            local tableSize = obj::size()
+            fromIndex = util::ensureIndex(tableSize, fromIndex)
+            toIndex = util::ensureIndex(tableSize, toIndex)
             if fromIndex > toIndex { fromIndex = toIndex }
-            if fromIndex > upperBoundary { fromIndex = upperBoundary }
-            if fromIndex < 1 { fromIndex = 1 }
-
             if toIndex < fromIndex { toIndex = fromIndex }
-            if toIndex > upperBoundary { toIndex = upperBoundary }
-            if toIndex < 1 { toIndex = 1 }
 
             local newList = Opt::of()
             local i = fromIndex
@@ -279,19 +272,13 @@ method Opt::of(val) {
 
     method obj::forIter(iteratorConsumerFn) {
         if util::isFunction(iteratorConsumerFn) {
-
             iteratorConsumerFn(Iter::new(obj.tbl))
         }
         return self
     }
 
     method obj::keysOrdered(orderedKeysConsumerFn) {
-        local byKeys = {}
-        for k, _ of obj.tbl { table.insert(byKeys, k) }
-        table.sort(byKeys)
-        for _, v of byKeys {
-            orderedKeysConsumerFn(v, obj.tbl[v])
-        }
+        for _, v of obj::sortKeys() { orderedKeysConsumerFn(v, obj.tbl[v]) }
         return self
     }
 

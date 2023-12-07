@@ -143,6 +143,12 @@ method Util::new() {
         return foundAll
     }
 
+    method obj::ensureIndex(size, index) {
+        if index > size { index = size }
+        if index < 1 { index = 1 }
+        return index
+    }
+
     return obj
 }
 
