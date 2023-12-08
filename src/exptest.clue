@@ -133,18 +133,18 @@ Transmutations |                                                                
         return assert::equals(expected, candidate)
     }
 
-    // method obj::testCalculateSkillAdvancement() {
-    //     local expected = 0.5
-    //     local candidate = exp::advancementFor("Earth Magic", 1)
-    //     return assert::equals(expected, candidate)
-    // }
+    method obj::testCalculateSkillAdvancement() {
+        local expected = 0.5
+        local candidate = exp::advancementFor("Earth Magic", 1)
+        return assert::equals(expected, candidate)
+    }
 
     method obj::testCalculateSkillAdvancement2() {
 
       local expected = 8 / 13
       local candidate = exp::advancementFor("Fighting", 11)
       return assert::equals(expected, candidate)
-  }
+    }
 
     return obj
 }

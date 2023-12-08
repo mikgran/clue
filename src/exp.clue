@@ -56,18 +56,8 @@ method Exp::of(expChart) {
     }
 
     method obj::advancementFor(skillName, curLevel) {
-
-// Skill      XL: |  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 |
-// ---------------+-------------------------------------------------------------------------------+-----
-// Earth Magic    |  3     4  5     7  8     9 12    13 15 17 19 20 22 24 25       26 27          | 27.0
-
-// lvl now, lvl at increase, average increase per level
-// get all progressing per level, calc total increase per level
-// skills: each skill advancement per level against total advancement
-
         local skillTable = obj::get(skillName)
         local advancementPerLevel = 0
-
         Opt::of(skillTable)
             // TODO: fix filter and the rest of the methods to handle processing always in ordered fashion
             ::filter(fn(k, v) { return (v && "" != v) && (k >= curLevel) })
@@ -80,7 +70,6 @@ method Exp::of(expChart) {
                 print(skillDiff)
                 advancementPerLevel = skillDiff / levelDiff
             })
-
         return advancementPerLevel
     }
 
