@@ -9,6 +9,6 @@ Consts.otherSkills = { "Fighting", "Armour", "Dodging", "Shapeshifting",
     "Shields", "Spellcasting", "Conjurations", "Hexes", "Charms",
     "Summonings", "Necromancy", "Translocations", "Transmutations",
     "Fire Magic", "Ice Magic", "Air Magic", "Earth Magic",
-    "Poison Magic", "Invocations", "Evocations", "Stealth" }
+    "Alchemy", "Invocations", "Evocations", "Stealth" }
 
 return Consts

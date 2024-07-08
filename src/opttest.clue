@@ -306,8 +306,10 @@ method OptTest::new() {
     }
 
     method obj::testFlatMapapplyIdent() {
-        local strs = { { "a,b,c" }, { "t,u,v" } }
-        local expected = { "a", "b", "c", "t", "u", "v" }
+        local str1 = { "a,b,c" }
+        local str2 = { "t,u,v" }
+        local strs = { str1, str2 };
+        local expected = { "a", "b", "c", "t", "u", "v" };
         local candidate = {}
 
         Opt::
