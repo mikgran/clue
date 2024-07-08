@@ -1,0 +1,2286 @@
+{
+	--STATICS
+	local import, _modules
+	do
+		local cache = {}
+		local nils = {}
+		function import(modname)
+			if nils[modname] then return end
+			local cached = cache[modname]
+			if cached ~= nil then return cached end
+			cached = _modules[modname]
+			if cached ~= nil then
+				cached = cached(modname);
+				if cached == nil then
+					nils[modname] = true
+				else
+					cache[modname] = cached
+				end
+				return cached
+			end
+		end
+	end
+	_modules = {
+		["consts"] = function(...)
+			Consts = {		};
+			Consts.weaponSkills = {
+				"Unarmed Combat",
+				"Short Blades",
+				"Long Blades",
+				"Axes",
+				"Maces & Flails",
+				"Polearms",
+				"Staves"
+			};
+			Consts.rangedSkills = {
+				"Throwing",
+				"Ranged Weapons",
+				"Crossbows",
+				"Slings"
+			};
+			Consts.otherSkills = {
+				"Fighting",
+				"Armour",
+				"Dodging",
+				"Shapeshifting",
+				"Shields",
+				"Spellcasting",
+				"Conjurations",
+				"Hexes",
+				"Charms",
+				"Summonings",
+				"Necromancy",
+				"Translocations",
+				"Transmutations",
+				"Fire Magic",
+				"Ice Magic",
+				"Air Magic",
+				"Earth Magic",
+				"Alchemy",
+				"Invocations",
+				"Evocations",
+				"Stealth"
+			};
+			return Consts;
+		end,
+		["iter"] = function(...)
+			Iter = {		};
+			function Iter:new(object)
+				local obj = ObjectDescriptor:new();
+				local util = Util:new();
+				local nextIndex = nil;
+				function obj:init(o)
+					if util:isTable(o) then
+						obj.tbl = o;
+						local byKeys = {					};
+						for k, _ in pairs(o) do
+							table.insert(byKeys, k);
+						end
+						table.sort(byKeys);
+						obj.sortedKeys = byKeys;
+					end
+				end
+				obj:init(object);
+				function obj:next()
+					local k, v = next(obj.sortedKeys, obj.nextIndex);
+					obj.nextIndex = k;
+					return v, obj.tbl[(v)];
+				end
+				return obj;
+			end
+			return Iter;
+		end,
+		["envsetup"] = function(...)
+			EnvSetup = {		};
+			function EnvSetup:run()
+				local obj = ObjectDescriptor:new();
+				obj.name = "EnvSetup";
+				function obj:setDev()
+					if not crawl then
+						obj.DCSS = false;
+					else
+						obj.DCSS = true;
+					end
+				end
+				obj:setDev();
+				function obj:isDev()
+					return not obj.DCSS;
+				end
+				function obj:setGlobals()
+					if obj:isDev() then
+						crawl = {					};
+						function crawl:mpr(str)
+							print(str);
+						end
+						function crawl:setopt(s)
+
+						end
+						you = {					};
+						function you:turns()
+							return 0;
+						end
+						function you:race()
+							return "human";
+						end
+						function you:class()
+							return "fighter";
+						end
+						function mpr(str)
+							print(str);
+						end
+						c_persist = {					};
+						mpr("Using DEV env.");
+					end
+				end
+				obj:setGlobals();
+				return obj;
+			end
+			return EnvSetup;
+		end,
+		["objectdescriptortest"] = function(...)
+			ObjectDescriptorTest = {		};
+			function ObjectDescriptorTest:new()
+				local obj = {			};
+				local assert = Assert:new();
+				function obj:init()
+					obj.name = "ObjectDescriptorTest";
+				end
+				obj:init();
+				function obj:getName()
+					return obj.name;
+				end
+				function obj:testGetName()
+					local sn = "str";
+					local newoo = function()
+						local oo = ObjectDescriptor:new();
+						oo.name = sn;
+						return oo;
+					end;
+					local expected = sn;
+					local candidate = newoo():getName();
+					return assert:equals(expected, candidate);
+				end
+				return obj;
+			end
+		end,
+		["asserttest"] = function(...)
+			AssertTest = {		};
+			function AssertTest:new()
+				local obj = ObjectDescriptor:new();
+				local assert = Assert:new();
+				function obj:init()
+					obj.name = "AssertTest";
+				end
+				obj:init();
+				function obj:testEquals()
+					local expected = "t111";
+					local candidate = "t111";
+					return assert:equals(expected, candidate);
+				end
+				function obj:testEqualsWithNilCandidate()
+					local expected = "t111";
+					local candidate = nil;
+					return assert:notEquals(expected, candidate);
+				end
+				function obj:testNotEquals()
+					local expected = "t222";
+					local candidate = "t111";
+					return assert:notEquals(expected, candidate);
+				end
+				function obj:testAssertLists()
+					local expected = {
+						"abc"
+					};
+					local candidate = {
+						"abc"
+					};
+					return assert:equals(expected, candidate);
+				end
+				function obj:testAssertListsEqualsNot()
+					local expected = {
+						"abc"
+					};
+					local candidate = {
+						"def"
+					};
+					return assert:notEquals(expected, candidate);
+				end
+				function obj:testAssertListsNotEqualsWithNils()
+					local expected = {				};
+					expected.a = "abc";
+					expected.b = nil;
+					local candidate = {				};
+					candidate.a = "abc";
+					candidate.b = "def";
+					return assert:notEquals(expected, candidate);
+				end
+				return obj;
+			end
+		end,
+		["assert"] = function(...)
+			Assert = {		};
+			function Assert:new()
+				local obj = TestUtil:new();
+				function obj:init(ctx)
+					obj.name = "Assert";
+					obj.equalMsg = "were equal";
+					obj.notEqualMsg = "not equal";
+					local util = Util:new();
+					obj.isAllTables = util.isAllTables;
+					obj.tablesEqual = util.tablesEqual;
+				end
+				obj:init(context);
+				function obj:equals(expected, candidate)
+					local equals = false;
+					if obj:isAllTables(expected, candidate) and obj:tablesEqual(expected, candidate) then
+						equals = true;
+					elseif expected==candidate then
+						equals = true;
+					end
+					local _internal0;
+					if equals then
+						_internal0 = obj.equalMsg;
+					else
+						_internal0 = obj.notEqualMsg;
+					end
+					return obj:newResult("", (_internal0), expected, candidate, equals);
+				end
+				function obj:notEquals(expected, candidate)
+					local notEquals = false;
+					if obj:isAllTables(expected, candidate) and not obj:tablesEqual(expected, candidate) then
+						notEquals = true;
+					elseif expected~=candidate then
+						notEquals = true;
+					end
+					local _internal0;
+					if notEquals then
+						_internal0 = obj.notEqualMsg;
+					else
+						_internal0 = obj.equalMsg;
+					end
+					return obj:newResult("", (_internal0), expected, candidate, notEquals);
+				end
+				return obj;
+			end
+			return Assert;
+		end,
+		["testutil"] = function(...)
+			TestUtil = {		};
+			function TestUtil:new()
+				local obj = ObjectDescriptor:new();
+				function obj:init()
+					obj.name = "TestUtil";
+				end
+				obj:init();
+				function obj:newResult(tstName, message, candidate, expected, state)
+					return TestResult:new(tstName, message, candidate, expected, state);
+				end
+				return obj;
+			end
+			return TestUtil;
+		end,
+		["itertest"] = function(...)
+			IterTest = {		};
+			function IterTest:new()
+				local obj = ObjectDescriptor:new();
+				local assert = Assert:new();
+				function obj:init()
+					obj.name = "IterTest";
+				end
+				obj:init();
+				function obj:testIter()
+					local candidate = Opt:of();
+					local expected = Opt:of({
+						1,
+						2,
+						3,
+						4
+					});
+					local iter = Opt:of({
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					}):iter();
+					for i = 1, 4, 1 do
+						local k, v = iter:next();
+						candidate:add(v);
+					end
+					return assert:equals(expected:get(), candidate:get());
+				end
+				function obj:testIter2()
+					local candidate = Opt:of();
+					local expected = Opt:of({
+						1,
+						2,
+						3
+					});
+					local iter = Opt:of({
+						1,
+						2,
+						3
+					}):iter();
+					for i = 1, 4, 1 do
+						local k, v = iter:next();
+						candidate:add(v);
+					end
+					return assert:equals(expected:get(), candidate:get());
+				end
+				return obj;
+			end
+			return OptTest;
+		end,
+		["testresult"] = function(...)
+			TestResult = {		};
+			function TestResult:new(tstName, message, expected, candidate, state)
+				local obj = ObjectDescriptor:new();
+				function obj:init(tn, m, e, c, s)
+					obj.name = "TestResult";
+					obj.testName = tn or "";
+					obj.message = m;
+					obj.expected = e;
+					obj.candidate = c;
+					obj.state = s or false;
+				end
+				obj:init(tstName, message, expected, candidate, state);
+				function obj:setTestName(newTestName)
+					obj.testName = newTestName or "";
+				end
+				function obj:toStr(o)
+					if type(o)=='table' then
+						local s = '{ ';
+						for k, v in pairs(o) do
+							if type(k)~='number' then
+								k = '"'..k..'"';
+							end
+							s = s..'['..k..'] = '..dump(v)..',';
+						end
+						return s..'} ';
+					else
+						return tostring(o);
+					end
+				end
+				function obj:tostring()
+					local _internal0;
+					if obj.state then
+						_internal0 = "OK";
+					else
+						_internal0 = "Fail";
+					end
+					local toString = string.format("%5s: %s", (_internal0), obj.testName);
+					if obj.state then
+						return toString;
+					else
+						return toString..string.format("\n       expected:\n       %s\n       got:\n       %s", obj:toStr(obj.expected), obj:toStr(obj.candidate));
+					end
+				end
+				return obj;
+			end
+			return TestResult;
+		end,
+		["main"] = function(...)
+			local imports = {
+				"consts",
+				"objectdescriptor",
+				"util",
+				"envsetup",
+				"assert",
+				"asserttest",
+				"testresult",
+				"testutil",
+				"testrunner",
+				"opt",
+				"opttest",
+				"utiltest",
+				"objectdescriptortest",
+				"exp",
+				"exptest",
+				"characterdefaults",
+				"iter",
+				"itertest"
+			};
+			for _, name in ipairs(imports) do
+				import(name);
+			end
+			EnvSetup:run();
+			Util:new():setOptions();
+			function runAllAddonTestSuites()
+				local tests = {
+					OptTest:new(),
+					AssertTest:new(),
+					UtilTest:new(),
+					ObjectDescriptorTest:new(),
+					ExpTest:new(),
+					IterTest:new()
+				};
+				local testFilter = nil;
+				TestRunner:run(tests, testFilter);
+			end
+			runAllAddonTestSuites();
+			local charDef = CharacterDefaults:new();
+			saveCharDefaults = charDef.saveCharDefaults;
+			loadCharDefaults = charDef.loadCharDefaults;
+			charDef:setDefaults();
+		end,
+		["objectdescriptor"] = function(...)
+			ObjectDescriptor = {		};
+			function ObjectDescriptor:new()
+				local obj = {			};
+				function obj:init()
+					obj.name = "ObjectDescriptor";
+				end
+				obj:init();
+				function obj:getName()
+					return obj.name;
+				end
+				function obj:tostring()
+					local addToTable = function(tbl, key, val)
+						tbl[((#tbl+1))] = string.format("\n  %s: %s", tostring(key), val);
+					end;
+					local sbcat = function(sb, tbl)
+						local s = sb;
+						for _, v in ipairs(tbl) do
+							s = s..v;
+						end
+						return s;
+					end;
+					local name = obj:getName() or "";
+					local sb = name.."\n(";
+					local kvProperties = {				};
+					local kvFunctions = {				};
+					local kvTables = {				};
+					for key, value in pairs(self) do
+						local _internal0 = type(value);
+						if (_internal0 == "number") or (_internal0 == "string") then
+							addToTable(kvProperties, key, "\""..tostring(value).."\"");
+						else
+							if (_internal0 == "function") then
+								addToTable(kvFunctions, key, "fn");
+							else
+								if (_internal0 == "table") then
+									addToTable(kvTables, key, "{ }");
+								end
+							end
+						end
+					end
+					table.sort(kvProperties);
+					table.sort(kvFunctions);
+					table.sort(kvTables);
+					sb = sbcat(sb, kvProperties);
+					sb = sbcat(sb, kvFunctions);
+					sb = sbcat(sb, kvTables);
+					return sb.."\n)";
+				end
+				return obj;
+			end
+			return ObjectDescriptor;
+		end,
+		["characterdefaults"] = function(...)
+			CharacterDefaults = {		};
+			function CharacterDefaults:new()
+				local obj = {			};
+				function obj:init()
+					obj.weaponSkills = Consts.weaponSkills;
+					obj.rangedSkills = Consts.rangedSkills;
+					obj.otherSkills = Consts.otherSkills;
+					obj.skillGlyphs = {
+						[(1)] = "+",
+						[(2)] = "*"
+					};
+					obj.chdat = nil;
+					obj.loadAttempted = false;
+				end
+				obj:init();
+				function obj:skillMessage(prefix, skill, skillType, value)
+					local msg = "";
+					if prefix then
+						msg = prefix..";";
+					end
+					if skillType then
+						msg = msg..skillType.."("..skill..")::"..value;
+					else
+						msg = msg..skill.."::"..value;
+					end
+					return msg;
+				end
+				function obj:saveSkills(skills)
+					for _, sk in ipairs(skills) do
+						if you.train_skill(sk)>0 then
+							obj.chdat[((""..sk))] = you.train_skill(sk);
+							obj.chdat[((""..sk.."target"))] = you.get_training_target(""..sk);
+						end
+					end
+				end
+				function obj:loadSkills(weapons)
+					for _, sk in ipairs(weapons) do
+						if obj.chdat[(sk)] then
+							you.train_skill(sk, obj.chdat[(""..sk)]);
+							you.set_training_target(sk, obj.chdat[(""..sk.."target")]);
+						else
+							you.train_skill(sk, 0);
+						end
+					end
+				end
+				function obj:saveCharDefaults(quiet)
+					obj:updateCharCombo();
+					if you:class()=="Wanderer" then
+						return;
+					end
+					if not c_persist.charDefaults then
+						c_persist.charDefaults = {					};
+					end
+					c_persist.charDefaults[((obj.charCombo))] = {				};
+					obj.chdat = c_persist.charDefaults[(obj.charCombo)];
+					obj:saveSkills(obj.weaponSkills);
+					obj:saveSkills(obj.rangedSkills);
+					obj:saveSkills(obj.otherSkills);
+					tprint(obj.chdat);
+					if not quiet then
+						mpr("Saved default for "..obj.charCombo);
+					end
+				end
+				function obj:hasDefaults()
+					return you.class()~="Wanderer" and c_persist.charDefaults~=nil and c_persist.charDefaults[(obj.charCombo)]~=nil;
+				end
+				function obj:updateCharCombo()
+					obj.charCombo = you.race()..you.class();
+				end
+				function obj:loadCharDefaults(quiet)
+					obj:updateCharCombo();
+					if not obj:hasDefaults() then
+						return;
+					end
+					obj.chdat = c_persist.charDefaults[(obj.charCombo)];
+					obj:loadSkills(obj.weaponSkills);
+					obj:loadSkills(obj.rangedSkills);
+					obj:loadSkills(obj.otherSkills);
+					if not quiet then
+						mpr("Loaded defaults for "..obj.charCombo);
+					end
+				end
+				function obj:setDefaults(quiet)
+					obj:updateCharCombo();
+					if you.turns()~=0 then
+						return;
+					end
+					if not obj.loadAttempted then
+						obj:loadCharDefaults(quiet);
+						obj.loadAttempted = true;
+					end
+				end
+				function obj:mydofile()
+					dofile("CharacterDefaults.lua");
+				end
+				return obj;
+			end
+			return CharacterDefaults;
+		end,
+		["exp"] = function(...)
+			Exp = {		};
+			function Exp:of(expChart)
+				local obj = ObjectDescriptor:new();
+				function obj:init(chart)
+					local util = Util:new();
+					obj.name = "Exp";
+					obj.isEmptyStr = util.isEmptyStr;
+					obj.skills = Opt:of();
+					obj.expChart = chart;
+				end
+				function obj:dump()
+					obj.skills:dump();
+				end
+				function obj:parseSkill(line, name)
+					Opt:of(line):flatMap(function(k, v)
+						return splitByChunk(split(v, "|")[(2)], 3);
+					end):map(function(k, v)
+						return trim(v);
+					end):apply(function(table)
+						obj.skills:set(name, table);
+					end);
+				end
+				function obj:parseSkills(chart)
+					local lines = Opt:of(chart):flatMap(function(_, all)
+						local withoutLine1 = string.sub(all, 98);
+						local withoutLines1and2 = string.sub(withoutLine1, 101);
+						return splitByChunk(withoutLines1and2, 101);
+					end);
+					Opt:of(Consts.otherSkills):addAll(Consts.rangedSkills):addAll(Consts.weaponSkills):forEach(function(k, skillName)
+						lines:filter(function(_, line)
+							return string.find(line, skillName);
+						end):forEach(function(_, line)
+							obj:parseSkill(line, skillName);
+						end);
+					end);
+				end
+				obj:init(expChart);
+				obj:parseSkills(expChart);
+				function obj:get(skillName)
+					return obj.skills:get()[(skillName)];
+				end
+				function obj:getExpChart()
+					return obj.expChart;
+				end
+				function obj:advancementFor(skillName, curLevel)
+					local skillTable = obj:get(skillName);
+					local advancementPerLevel = 0;
+					Opt:of(skillTable):filter(function(k, v)
+						return (v and ""~=v) and (k>=curLevel);
+					end):forIter(function(iter)
+						local k1, v1 = iter:next();
+						local k2, v2 = iter:next();
+						local levelDiff = k2-k1;
+						local skillDiff = v2-v1;
+						print(levelDiff);
+						print(skillDiff);
+						advancementPerLevel = skillDiff/levelDiff;
+					end);
+					return advancementPerLevel;
+				end
+				return obj;
+			end
+			return Exp;
+		end,
+		["testrunner"] = function(...)
+			TestRunner = {		};
+			function TestRunner:run(table, filter)
+				local obj = ObjectDescriptor:new();
+				function obj:init(tbl, ftr)
+					obj.name = "TestRunner";
+					local _internal0 = type(tbl);
+					if (_internal0 == "table") then
+						obj.tests = tbl;
+					else
+						obj.tests = {
+							tbl
+						};
+					end
+					obj.filter = ftr;
+				end
+				obj:init(table, filter);
+				function obj:runSuite()
+					local results = Opt:of();
+					local resultMessages = Opt:of();
+					local successes = 0;
+					resultMessages:add("\nTest suites: "..#obj.tests);
+					if obj.filter then
+						resultMessages:add("\nFilter: "..obj.filter);
+					end
+					Opt:of(obj.tests):forEach(function(_, test)
+						resultMessages:add("\n\nSuite: "..test:getName().."\n");
+						Opt:of(test):filter(function(key, value)
+							local keyFound = string.find(key, "test");
+							if obj.filter then
+								keyFound = keyFound and string.find(key, obj.filter);
+							end
+							return keyFound;
+						end):forEach(function(fnName, testFn)
+							local tr = testFn();
+							if not tr then
+								tr = TestResult:new("", "", "testFunction did not return: TestResult.", "n/a", false);
+							end
+							tr:setTestName(fnName or "");
+							results:add(tr);
+							resultMessages:add("\n"..tr:tostring());
+							if tr.state then
+								successes = successes + 1;
+							end
+						end);
+					end);
+					local message = "";
+					resultMessages:forEach(function(k, v)
+						message = message..v;
+					end);
+					mpr(message);
+					mpr(string.format("\n\nTotal tests run: %s, ok: %s, failed: %s", results:size(), successes, results:size()-successes));
+				end
+				obj:runSuite();
+				return obj;
+			end
+			return TestRunner;
+		end,
+		["exptest"] = function(...)
+			ExpTest = {		};
+			function ExpTest:new()
+				local obj = ObjectDescriptor:new();
+				local assert = Assert:new();
+				local expChart = "Skill      XL: |  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 |---------------+-------------------------------------------------------------------------------+-----Earth Magic    |  3     4  5     7  8     9 12    13 15 17 19 20 22 24 25       26 27          | 27.0Spellcasting   |                    4  6             10 12          14 15    19 20             | 20.0Conjurations   |                       5  6                                                    |  6.0Fighting       |                          6    10                                     18 20    | 20.0Invocations    |                             5  6                                              |  6.0Shields        |                                6 10                      15                   | 15.0Ice Magic      |                                              10                               | 10.0Armour         |                                                        6          11 12    14 | 14.4Necromancy     |                                                              5           9    |  9.1Ranged Weapons |                                                                          7  8 |  8.0Dodging        |                                                                               |  1.7Stealth        |                                                                               |  1.4Transmutations |                                                                               |  0.8";
+				local exp = Exp:of(expChart);
+				function obj:init()
+					obj.name = "ExpTest";
+				end
+				obj:init();
+				function obj:testParsingEM()
+					local expected = {
+						[(1)] = "3",
+						[(2)] = "",
+						[(3)] = "4",
+						[(4)] = "5",
+						[(5)] = "",
+						[(6)] = "7",
+						[(7)] = "8",
+						[(8)] = "",
+						[(9)] = "9",
+						[(10)] = "12",
+						[(11)] = "",
+						[(12)] = "13",
+						[(13)] = "15",
+						[(14)] = "17",
+						[(15)] = "19",
+						[(16)] = "20",
+						[(17)] = "22",
+						[(18)] = "24",
+						[(19)] = "25",
+						[(20)] = "",
+						[(21)] = "",
+						[(22)] = "26",
+						[(23)] = "27",
+						[(24)] = "",
+						[(25)] = "",
+						[(26)] = "",
+						[(27)] = ""
+					};
+					local candidate = exp:get("Earth Magic");
+					return assert:equals(expected, candidate);
+				end
+				function obj:testParsingSC()
+					local expected = {
+						[(1)] = "",
+						[(2)] = "",
+						[(3)] = "",
+						[(4)] = "",
+						[(5)] = "",
+						[(6)] = "",
+						[(7)] = "4",
+						[(8)] = "6",
+						[(9)] = "",
+						[(10)] = "",
+						[(11)] = "",
+						[(12)] = "",
+						[(13)] = "10",
+						[(14)] = "12",
+						[(15)] = "",
+						[(16)] = "",
+						[(17)] = "",
+						[(18)] = "14",
+						[(19)] = "15",
+						[(20)] = "",
+						[(21)] = "19",
+						[(22)] = "20",
+						[(23)] = "",
+						[(24)] = "",
+						[(25)] = "",
+						[(26)] = "",
+						[(27)] = ""
+					};
+					local candidate = exp:get("Spellcasting");
+					return assert:equals(expected, candidate);
+				end
+				function obj:testParsingCJ()
+					local expected = {
+						[(1)] = "",
+						[(2)] = "",
+						[(3)] = "",
+						[(4)] = "",
+						[(5)] = "",
+						[(6)] = "",
+						[(7)] = "",
+						[(8)] = "5",
+						[(9)] = "6",
+						[(10)] = "",
+						[(11)] = "",
+						[(12)] = "",
+						[(13)] = "",
+						[(14)] = "",
+						[(15)] = "",
+						[(16)] = "",
+						[(17)] = "",
+						[(18)] = "",
+						[(19)] = "",
+						[(20)] = "",
+						[(21)] = "",
+						[(22)] = "",
+						[(23)] = "",
+						[(24)] = "",
+						[(25)] = "",
+						[(26)] = "",
+						[(27)] = ""
+					};
+					local candidate = exp:get("Conjurations");
+					return assert:equals(expected, candidate);
+				end
+				function obj:testCalculateSkillAdvancement()
+					local expected = 0.5;
+					local candidate = exp:advancementFor("Earth Magic", 1);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testCalculateSkillAdvancement2()
+					local expected = 8/13;
+					local candidate = exp:advancementFor("Fighting", 11);
+					return assert:equals(expected, candidate);
+				end
+				return obj;
+			end
+			return ExpTest;
+		end,
+		["utiltest"] = function(...)
+			UtilTest = {		};
+			function UtilTest:new()
+				local obj = ObjectDescriptor:new();
+				local assert = Assert:new();
+				local util = Util:new();
+				function obj:init()
+					obj.name = "UtilTest";
+				end
+				obj:init();
+				function obj:testisFunction()
+					local assert = Assert:new();
+					local fn1 = function()
+						return "abc";
+					end;
+					local expected = true;
+					local candidate = util:isFunction(fn1);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testisFunctionWithNoFn()
+					local expected = false;
+					local candidate = util:isFunction(nil);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableContainsTable()
+					local t1 = {
+						"ab",
+						"cd",
+						"ef"
+					};
+					local t2 = {
+						"ab",
+						"cd"
+					};
+					local expected = true;
+					local candidate = util:table1ContainsTable2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableContainsTableNot()
+					local t1 = {
+						"ab",
+						"cd",
+						"ef"
+					};
+					local t2 = {
+						"ab",
+						"cd",
+						"ef",
+						"gh"
+					};
+					local expected = false;
+					local candidate = util:table1ContainsTable2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTablesEqualNot()
+					local t1 = {				};
+					t1.a = nil;
+					t1.b = "2";
+					t1.c = "3";
+					local t2 = {				};
+					t2.a = "1";
+					t2.b = "2";
+					t2.c = "3";
+					local expected = false;
+					local candidate = util:tablesEqual(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableContainsTableNot2()
+					local t1 = {
+						"abc",
+						"cde",
+						"efg"
+					};
+					local t2 = {
+						"abc",
+						"cde",
+						"efg",
+						"hij"
+					};
+					local expected = false;
+					local candidate = util:table1ContainsTable2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableKeys1ContainsTableKeys2()
+					local t1 = {
+						toString = "abc",
+						getName = "def",
+						setName = "gij"
+					};
+					local t2 = {
+						toString = "abc",
+						getName = "def",
+						setName = "gij"
+					};
+					local expected = true;
+					local candidate = util:tableKeys1ContainsTableKeys2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableKeys1ContainsTableKeys2Not()
+					local t1 = {
+						toString = "abc",
+						getName = "def",
+						setName = "gij"
+					};
+					local t2 = {
+						toString = "abc",
+						getName = "def",
+						setGame = "gij"
+					};
+					local expected = false;
+					local candidate = util:tableKeys1ContainsTableKeys2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableKeys1ContainsTableKeys2WithLessKeys()
+					local t1 = {
+						toString = "abc",
+						getName = "def",
+						setName = "gij"
+					};
+					local t2 = {
+						toString = "abc",
+						getName = "def"
+					};
+					local expected = true;
+					local candidate = util:tableKeys1ContainsTableKeys2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTableKeys1ContainsTableKeys2NotWithMoreKeys()
+					local t1 = {
+						toString = "abc",
+						getName = "def"
+					};
+					local t2 = {
+						toString = "abc",
+						getName = "def",
+						setName = "gij"
+					};
+					local expected = false;
+					local candidate = util:tableKeys1ContainsTableKeys2(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testIsAllDef()
+					local expected = true;
+					local candidate = util:isAllDef("", 1, function()
+						return true;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testIsAllDefNot()
+					local fn1 = nil;
+					local expected = false;
+					local candidate = util:isAllDef("", fn1, function()
+						return true;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTablesEqualNotWithDifferentKeys()
+					local t1 = {				};
+					t1.a = "1";
+					t1.b = "2";
+					t1.c = "3";
+					local t2 = {				};
+					t2.a = "1";
+					t2.b = "2";
+					t2.d = "3";
+					local expected = false;
+					local candidate = util:tablesEqual(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTablesEqualNotWithDifferentValues()
+					local t1 = {				};
+					t1.a = "1";
+					t1.b = "2";
+					t1.c = "3";
+					local t2 = {				};
+					t2.a = "1";
+					t2.b = "2";
+					t2.c = "10";
+					local expected = false;
+					local candidate = util:tablesEqual(t1, t2);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testEnsureIndex()
+					local t1 = {				};
+					t1.a = "1";
+					t1.b = "2";
+					t1.c = "3";
+					local expected = 3;
+					local index = 10;
+					local candidate = util:ensureIndex(util:tableSize(t1), index);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testEnsureIndex2()
+					local t1 = {				};
+					t1.a = "1";
+					t1.b = "2";
+					t1.c = "3";
+					local expected = 1;
+					local index = 0;
+					local candidate = util:ensureIndex(util:tableSize(t1), index);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testEnsureIndex3()
+					local t1 = {				};
+					t1.a = "1";
+					t1.b = "2";
+					t1.c = "3";
+					local expected = 2;
+					local index = 2;
+					local candidate = util:ensureIndex(util:tableSize(t1), index);
+					return assert:equals(expected, candidate);
+				end
+				return obj;
+			end
+			return UtilTest;
+		end,
+		["util"] = function(...)
+			Util = {		};
+			function Util:new()
+				local obj = {			};
+				function obj:setOptions()
+					crawl.setopt("pickup_mode = multi");
+					crawl.setopt("message_colour += mute::Okay");
+					crawl.setopt("message_colour += mute::Read which item");
+					crawl.setopt("message_colour += mute::Search for what");
+					crawl.setopt("message_colour += mute::Can't find anything");
+					crawl.setopt("message_colour += mute::Drop what");
+					crawl.setopt("message_colour += mute::Use which ability");
+					crawl.setopt("message_colour += mute::Read which item");
+					crawl.setopt("message_colour += mute::Drink which item");
+					crawl.setopt("message_colour += mute::!good enough");
+					crawl.setopt("message_colour += mute::Attack whom");
+					crawl.setopt("message_colour += mute::move target cursor");
+					crawl.setopt("message_colour += mute::Aim::");
+					crawl.setopt("message_colour += mute::You reach to attack");
+					crawl.setopt("message_colour += mute::No target in view!");
+				end
+				function obj:unsetOptions()
+					crawl.setopt("pickup_mode = auto");
+					crawl.setopt("message_colour -= mute::Okay");
+					crawl.setopt("message_colour -= mute::Search for what");
+					crawl.setopt("message_colour -= mute::Can't find anything");
+					crawl.setopt("message_colour -= mute::Drop what");
+					crawl.setopt("message_colour -= mute::Use which ability");
+					crawl.setopt("message_colour -= mute::Read which item");
+					crawl.setopt("message_colour -= mute::Drink which item");
+					crawl.setopt("message_colour -= mute::!good enough");
+					crawl.setopt("message_colour -= mute::Attack whom");
+					crawl.setopt("message_colour -= mute::move target cursor");
+					crawl.setopt("message_colour -= mute::Aim::");
+					crawl.setopt("message_colour -= mute::You reach to attack");
+					crawl.setopt("message_colour -= mute::No target in view!");
+				end
+				function obj:isAll(fn1, ...)
+					local allDef = true;
+					for i = 1, select('#', ...), 1 do
+						if not fn1(select(i, ...)) then
+							allDef = false;
+							break;
+						end
+					end
+					return allDef;
+				end
+				function obj:isAllDef(...)
+					return obj:isAll(function(o)
+						return o~=nil;
+					end, ...);
+				end
+				function obj:isAllTables(...)
+					return obj:isAll(function(o)
+						return obj:isTable(o);
+					end, ...);
+				end
+				function obj:isUnDef(o)
+					return (o==nil);
+				end
+				function obj:isDef(o)
+					return (o~=nil);
+				end
+				function obj:isEmptyStr(o)
+					return (o==nil or o=="");
+				end
+				function obj:eq(a, b)
+					local isEqual = false;
+					if obj:isDef(a) and obj:isDef(b) and a==b then
+						isEqual = true;
+					end
+					return isEqual;
+				end
+				function obj:isFunction(o)
+					return (o~=nil and type(o)=="function");
+				end
+				function obj:isTable(o)
+					return (o~=nil and type(o)=="table");
+				end
+				function obj:isString(o)
+					return (o~=nil and type(o)=="string");
+				end
+				function obj:isNumber(o)
+					return (o~=nil and type(o)=="number");
+				end
+				function obj:tableSize(tbl)
+					local tblSize = 0;
+					for k, v in pairs(tbl) do
+						tblSize = tblSize + 1;
+					end
+					return tblSize;
+				end
+				function obj:tablesEqual(table1, table2)
+					local isTablesEqual = false;
+					if obj:isAllTables(table1, table2) then
+						isTablesEqual = (obj:tableSize(table1)==obj:tableSize(table2));
+						if isTablesEqual then
+							for k, v in pairs(table1) do
+								local table1value = table1[(k)];
+								local table2value = table2[(k)];
+								if table1value~=table2value or nil==table1value or nil==table2value then
+									isTablesEqual = false;
+									break;
+								end
+							end
+						end
+					end
+					return isTablesEqual;
+				end
+				function obj:identV(v)
+					return v;
+				end
+				function obj:table1ContainsTable2(t1, t2)
+					local foundAll = false;
+					if obj:isAllTables(t1, t2) and #t2<=#t1 then
+						foundAll = true;
+						for i2, v2 in pairs(t2) do
+							if t1[(i2)]~=t2[(i2)] then
+								foundAll = false;
+								break;
+							end
+						end
+					end
+					return foundAll;
+				end
+				function obj:tableKeys1ContainsTableKeys2(t1, t2)
+					local foundAll = false;
+					if obj:isAllTables(t1, t2) and #t2<=#t1 then
+						foundAll = true;
+						for i2, _ in pairs(t2) do
+							local found = false;
+							for i1, _ in pairs(t1) do
+								if i2==i1 then
+									found = true;
+									break;
+								end
+							end
+							foundAll = foundAll and found;
+							if not foundAll then
+								break;
+							end
+						end
+					end
+					return foundAll;
+				end
+				function obj:ensureIndex(size, index)
+					if index>size then
+						index = size;
+					end
+					if index<1 then
+						index = 1;
+					end
+					return index;
+				end
+				return obj;
+			end
+			if not mpr then
+				mpr = function(msg, color)
+					if not color then
+						color = "white";
+					end
+					crawl.mpr("<"..color..">"..msg.."</"..color..">");
+				end;
+			end
+			if not dump then
+				dump = function(o)
+					if type(o)=='table' then
+						local s = '{ ';
+						for k, v in pairs(o) do
+							if type(k)~='number' then
+								k = '"'..k..'"';
+							end
+							s = s..'['..k..'] = '..dump(v)..',';
+						end
+						return s..'} ';
+					else
+						return tostring(o);
+					end
+				end;
+			end
+			if not tprint then
+				tprint = function(t, s)
+					for k, v in pairs(t) do
+						local kfmt = '["'..tostring(k)..'"]';
+						if type(k)~='string' then
+							kfmt = '['..k..']';
+						end
+						local vfmt = '"'..tostring(v)..'"';
+						if type(v)=='table' then
+							tprint(v, (s or '')..kfmt);
+						else
+							if type(v)~='string' then
+								vfmt = tostring(v);
+							end
+							mpr(type(t)..(s or '')..kfmt..' = '..vfmt);
+						end
+					end
+				end;
+			end
+			if not tableAdd then
+				tableAdd = function(t, o)
+					if t~=nil and type(t)=="table" then
+						t[((#t+1))] = o;
+					end
+				end;
+			end
+			if not tableFilter then
+				tableFilter = function(t, p)
+					local results = {				};
+					if t~=nil and type(t)=="table" and p~=nil and type(p)=="function" then
+						for k, v in pairs(t) do
+							if p(k, v) then
+								results[((#results+1))] = v;
+							end
+						end
+					end
+					return results;
+				end;
+			end
+			if not tableForEach then
+				tableForEach = function(t, fn1)
+					if t~=nil and type(t)=="table" and fn1~=nil and type(fn1)=="function" then
+						for k, v in pairs(t) do
+							fn1(k, v);
+						end
+					end
+				end;
+			end
+			if not stripLetters then
+				stripLetters = function(str)
+					local result = "";
+					if str~=nil and type(str)=="string" then
+						for i = 1, #str, 1 do
+							local c = str:sub(i, i);
+							if c:match("^%-?%d+$") then
+								result = result..c;
+							end
+						end
+					end
+					return result;
+				end;
+			end
+			if not split then
+				split = function(str, pat)
+					local t = {				};
+					local fpat = "(.-)"..pat;
+					local last_end = 1;
+					local s, e, cap = str:find(fpat, 1);
+					while s do
+						if s~=1 or cap~="" then
+							t[((#t+1))] = cap;
+						end
+						last_end = e+1;
+						s, e, cap = str:find(fpat, last_end);
+					end
+					if last_end<=#str then
+						cap = str:sub(last_end);
+						t[((#t+1))] = cap;
+					end
+					return t;
+				end;
+			end
+			if not splitByChunk then
+				splitByChunk = function(text, chunkSize)
+					local s = {				};
+					if text~=nil and type(text)=="string" and chunkSize~=nil and type(chunkSize)=="number" then
+						for i = 1, #text, chunkSize do
+							s[((#s+1))] = text:sub(i, i+chunkSize-1);
+						end
+					end
+					return s;
+				end;
+			end
+			if not trim then
+				trim = function(s)
+					if type(s)=="string" then
+						return (string.gsub(s, "^%s*(.-)%s*$", "%1"));
+					else
+						return s;
+					end
+				end;
+			end
+			return Util;
+		end,
+		["opt"] = function(...)
+			Opt = {		};
+			function Opt:of(val)
+				local obj = ObjectDescriptor:new();
+				local util = Util:new();
+				function obj:init(o)
+					obj.name = "Opt";
+				end
+				obj:init(val);
+				function obj:use(objectOrTable)
+					local _internal0 = objectOrTable;
+					local _internal1 = objectOrTable;
+					if not util:isNumber(objectOrTable) and (_internal0 and _internal0.get) and (_internal1 and _internal1.name)=="Opt" then
+						obj:use(objectOrTable:get());
+					elseif util:isTable(objectOrTable) then
+						obj.tbl = objectOrTable;
+					elseif objectOrTable then
+						obj.tbl = {
+							objectOrTable
+						};
+					else
+						obj.tbl = {					};
+					end
+					return self;
+				end
+				obj:use(val);
+				function obj:size()
+					local size = 0;
+					for k, v in pairs(obj.tbl) do
+						size = size + 1;
+					end
+					return size;
+				end
+				function obj:set(key, value)
+					if key and value then
+						obj.tbl[((key))] = value;
+					end
+					return self;
+				end
+				function obj:add(object)
+					if object then
+						obj.tbl[((#obj.tbl+1))] = object;
+					end
+					return self;
+				end
+				function obj:cat(table)
+					if util:isTable(table) then
+						local size = obj:size();
+						for _, v in pairs(table) do
+							size = size + 1;
+							obj.tbl[((size))] = v;
+						end
+					end
+					return self;
+				end
+				function obj:put(table)
+					if util:isTable(table) then
+						for k, v in pairs(table) do
+							obj.tbl[((k))] = v;
+						end
+					end
+					return self;
+				end
+				function obj:map(mapFn)
+					local allResults = {				};
+					local isResults = false;
+					if util:isFunction(mapFn) then
+						for k, v in pairs(obj.tbl) do
+							local result = mapFn(k, v);
+							if result then
+								allResults[((#allResults+1))] = result;
+								isResults = true;
+							end
+						end
+					end
+					if isResults then
+						return Opt:of(allResults);
+					else
+						return self;
+					end
+				end
+				function obj:forEach(forEachFn)
+					if util:isFunction(forEachFn) then
+						for key, value in pairs(obj.tbl) do
+							forEachFn(key, value);
+						end
+					end
+					return self;
+				end
+				function obj:filter(predicate)
+					local results = {				};
+					if predicate==nil or not util:isFunction(predicate) then
+						results = obj:get();
+					else
+						for k, v in pairs(obj.tbl) do
+							if predicate(k, v) then
+								results[((k))] = v;
+							end
+						end
+					end
+					return Opt:of(results);
+				end
+				function obj:mapc(code)
+					local mapped = {				};
+					local isResults = false;
+					if (not util:isEmptyStr(code)) then
+						local codeString = string.format("return function(k, v) %s end", code);
+						local fn1 = loadstring(codeString)();
+						setfenv(fn1, getfenv());
+						mapped = obj:map(fn1);
+						isResults = true;
+					end
+					if isResults then
+						return Opt:of(mapped);
+					else
+						return self;
+					end
+				end
+				function obj:get()
+					local size = 0;
+					local firstKey = nil;
+					for key, val in pairs(obj.tbl) do
+						size = size+1;
+						if size==1 then
+							firstKey = key;
+						end
+						if size>=2 then
+							break;
+						end
+					end
+					if size>=2 then
+						return obj.tbl;
+					else
+						return obj.tbl[(firstKey)];
+					end
+				end
+				function obj:apply(applyFn)
+					if util:isFunction(applyFn) then
+						applyFn(obj.tbl);
+					end
+					return self;
+				end
+				function obj:some(someFn)
+					if obj:size()>0 and util:isFunction(someFn) then
+						someFn(obj.tbl);
+					end
+					return self;
+				end
+				function obj:none(noneFn)
+					if obj:size()==0 and util:isFunction(noneFn) then
+						noneFn(obj.tbl);
+					end
+					return self;
+				end
+				function obj:sortKeys()
+					local byKeys = {				};
+					for k, _ in pairs(obj.tbl) do
+						table.insert(byKeys, k);
+					end
+					table.sort(byKeys);
+					return byKeys;
+				end
+				function obj:take(numberOfElements)
+					if util:isNumber(numberOfElements) then
+						local i = 0;
+						local newList = Opt:of();
+						for _, v in pairs(obj:sortKeys()) do
+							newList:set(v, obj.tbl[(v)]);
+							i = i + 1;
+							if i>=numberOfElements then
+								break;
+							end
+						end
+						obj:use(newList);
+					end
+					return self;
+				end
+				function obj:flatMap(flatMapFn)
+					local results = {				};
+					local isResults = false;
+					if util:isFunction(flatMapFn) then
+						for k, v in pairs(obj.tbl) do
+							local mapped = flatMapFn(k, v);
+							if util:isTable(mapped) then
+								for _, v2 in pairs(mapped) do
+									results[((#results+1))] = v2;
+									isResults = true;
+								end
+							else
+								results[((#results+1))] = mapped;
+								isResults = true;
+							end
+						end
+					end
+					if isResults then
+						return Opt:of(results);
+					else
+						return self;
+					end
+				end
+				function obj:dump()
+					mpr(dump(obj.tbl));
+					return self;
+				end
+				function obj:addAll(table)
+					if util:isTable(table) then
+						for key, value in pairs(table) do
+							obj.tbl[((#obj.tbl+1))] = value;
+						end
+					end
+					return self;
+				end
+				function obj:reduce(reduceFn, acc)
+					local a = acc;
+					if util:isFunction(reduceFn) and acc then
+						for k, v in pairs(obj.tbl) do
+							a = reduceFn(k, v, a);
+						end
+					else
+						return self;
+					end
+					return Opt:of(a);
+				end
+				function obj:slice(fromIndex, toIndex)
+					if util:isNumber(fromIndex) and util:isNumber(toIndex) and obj:size()>0 then
+						local tableSize = obj:size();
+						fromIndex = util:ensureIndex(tableSize, fromIndex);
+						toIndex = util:ensureIndex(tableSize, toIndex);
+						if fromIndex>toIndex then
+							fromIndex = toIndex;
+						end
+						if toIndex<fromIndex then
+							toIndex = fromIndex;
+						end
+						local newList = Opt:of();
+						local i = fromIndex;
+						repeat
+							newList:add(obj.tbl[(i)]);
+							i = i + 1;
+						until i>toIndex
+						obj:use(newList);
+					end
+					return self;
+				end
+				function obj:iter()
+					return Iter:new(obj.tbl);
+				end
+				function obj:forIter(iteratorConsumerFn)
+					if util:isFunction(iteratorConsumerFn) then
+						iteratorConsumerFn(Iter:new(obj.tbl));
+					end
+					return self;
+				end
+				function obj:keysOrdered(orderedKeysConsumerFn)
+					for _, v in pairs(obj:sortKeys()) do
+						orderedKeysConsumerFn(v, obj.tbl[(v)]);
+					end
+					return self;
+				end
+				return obj;
+			end
+			return Opt;
+		end,
+		["opttest"] = function(...)
+			OptTest = {		};
+			function OptTest:new()
+				local obj = ObjectDescriptor:new();
+				local assert = Assert:new();
+				function obj:init()
+					obj.name = "OptTest";
+				end
+				obj:init();
+				function obj:testMap()
+					local str = "111222";
+					local expected = str..str;
+					local candidate = nil;
+					Opt:of(str):map(function(k, v)
+						return v..v;
+					end):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testMapValueapplyNilfn()
+					local str = "111222";
+					local expected = str;
+					local candidate = nil;
+					Opt:of(str):map():apply(function(tbl)
+						candidate = tbl[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testMapValueapplyNotAfn()
+					local str = "111222";
+					local expected = str;
+					local candidate = nil;
+					Opt:of(str):map("ssss"):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testMapNilValue()
+					local str = nil;
+					local expected = nil;
+					local candidate = nil;
+					Opt:of(str):map(function(k, v)
+						return v..v;
+					end):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(tostring(expected), tostring(candidate));
+				end
+				function obj:testMapc()
+					local str = "abc";
+					local expected = str..str;
+					local candidate = nil;
+					Opt:of(str):mapc("return v..v"):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testMapcapplyNilfn()
+					local str = "abc";
+					local expected = str;
+					local candidate = nil;
+					Opt:of(str):mapc():apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testMapcapplyNilValue()
+					local str = nil;
+					local expected = nil;
+					local candidate = nil;
+					Opt:of(str):mapc("return it"):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testUse()
+					local str = "abc";
+					local expected = "cde";
+					local candidate = nil;
+					Opt:of(str):use("cde"):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testUseapplyNil()
+					local str = "abc";
+					local expected = nil;
+					local candidate = nil;
+					Opt:of(str):use(nil):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testUse2()
+					local expected = "abc";
+					local candidate = nil;
+					Opt:of(nil):use("abc"):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testFilter()
+					local str = "abc";
+					local expected = str;
+					local candidate = nil;
+					Opt:of(str):filter(function(k, v)
+						return type(v)=="string";
+					end):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testFilter2()
+					local str = "abc";
+					local expected = nil;
+					local candidate = nil;
+					Opt:of(str):filter(function(k, v)
+						return (type(v)=="fn");
+					end):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testFilter3()
+					local str = nil;
+					local expected = nil;
+					local candidate = nil;
+					Opt:of(str):filter(function(k, v)
+						return type(v)=="fn";
+					end):apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testFilterapplyNilPredicate()
+					local str = "abc";
+					local expected = "abc";
+					local candidate = nil;
+					Opt:of(str):filter():apply(function(v)
+						candidate = v[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testForEachapplySimpleValue()
+					local str = "abc";
+					local expected = "abc";
+					local candidate = "";
+					Opt:of(str):forEach(function(k, v)
+						candidate = candidate..v;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testForEachapplyTable()
+					local strs = {
+						"1",
+						"2",
+						"3"
+					};
+					local expected = {
+						"1",
+						"2",
+						"3"
+					};
+					local candidate = Opt:of();
+					Opt:of(strs):forEach(function(k, v)
+						candidate:add(v);
+					end);
+					return assert:equals(expected, candidate:get());
+				end
+				function obj:testCat()
+					local strs = {
+						"1"
+					};
+					local expected = {
+						"1",
+						"2",
+						"a"
+					};
+					local catTable = {
+						"2",
+						"a"
+					};
+					local candidate = {				};
+					Opt:of(strs):cat(catTable):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testPut()
+					local strs = {				};
+					strs.a = "1";
+					strs.b = "b";
+					local catTable = {				};
+					catTable.a = "c";
+					catTable.c = "d";
+					local expected = {				};
+					expected.a = catTable.a;
+					expected.b = "b";
+					expected.c = "d";
+					local candidate = {				};
+					Opt:of(strs):put(catTable):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testapply()
+					local strs = {
+						"1",
+						"2",
+						"3"
+					};
+					local expected = {
+						"1",
+						"2",
+						"3"
+					};
+					local candidate = {				};
+					Opt:of(strs):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testFlatMap()
+					local strs = {
+						"1,2,3"
+					};
+					local expected = {
+						"1",
+						"2",
+						"3"
+					};
+					local candidate = {				};
+					Opt:of(strs):flatMap(function(k, v)
+						return split(v, ",");
+					end):forEach(function(k, v)
+						candidate[((#candidate+1))] = v;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testAddAll()
+					local strs = {
+						"1",
+						"2",
+						"3"
+					};
+					local expected = {
+						"1",
+						"2",
+						"3",
+						"1",
+						"2",
+						"3"
+					};
+					local candidate = nil;
+					Opt:of(strs):addAll({
+						"1",
+						"2",
+						"3"
+					}):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testFlatMapapplyIdent()
+					local str1 = {
+						"a,b,c"
+					};
+					local str2 = {
+						"t,u,v"
+					};
+					local strs = {
+						str1,
+						str2
+					};
+					local expected = {
+						"a",
+						"b",
+						"c",
+						"t",
+						"u",
+						"v"
+					};
+					local candidate = {				};
+					Opt:of(strs):flatMap(function(_, v)
+						return v;
+					end):flatMap(function(_, v)
+						return split(v, ",");
+					end):forEach(function(_, v)
+						candidate[((#candidate+1))] = v;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testReduce()
+					local strs = {
+						5,
+						5,
+						10,
+						20,
+						20
+					};
+					local candidate = nil;
+					local expected = 60;
+					Opt:of(strs):reduce(function(k, v, a)
+						return a+v;
+					end, 0):apply(function(t)
+						candidate = t[(1)];
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSlice1()
+					local candidate;
+					local expected = {
+						5,
+						10,
+						15
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(1, 3):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSlice2()
+					local candidate;
+					local expected = {
+						5,
+						10,
+						15,
+						20,
+						25
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(1, 5):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSliceLowerBoundary1()
+					local candidate;
+					local expected = {
+						5
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(0, 0):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSliceLowerBoundary2()
+					local candidate;
+					local expected = {
+						5
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(4, 0):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSliceUpperBoundary3()
+					local candidate;
+					local expected = {
+						25
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(6, 6):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSliceUpperBoundary4()
+					local candidate;
+					local expected = {
+						5,
+						10,
+						15,
+						20
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(0, 4):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSlice3()
+					local candidate;
+					local expected = {
+						10,
+						15,
+						20
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(2, 4):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSlice4()
+					local candidate;
+					local expected = {
+						20,
+						25
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(4, 5):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSliceULInvalidBoundary()
+					local candidate;
+					local expected = {
+						5
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(6, 0):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSliceULInvalidBoundary2()
+					local candidate;
+					local expected = {
+						5,
+						10,
+						15,
+						20,
+						25
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):slice(0, 6):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSome()
+					local candidate;
+					local expected = {
+						5,
+						10,
+						15,
+						20,
+						25
+					};
+					Opt:of({
+						5,
+						10,
+						15,
+						20,
+						25
+					}):some(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testSome2()
+					local candidate = nil;
+					local expected = nil;
+					Opt:of():some(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testNone()
+					local candidate;
+					local expected = {
+						1
+					};
+					Opt:of({
+						1
+					}):none(function(table)
+						candidate = {
+							1,
+							2,
+							3
+						};
+					end):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testNone2()
+					local candidate;
+					local expected = {
+						1,
+						2,
+						3
+					};
+					Opt:of():none(function(table)
+						candidate = {
+							1,
+							2,
+							3
+						};
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTake()
+					local candidate;
+					local expected = {
+						1,
+						2
+					};
+					Opt:of({
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					}):take(2):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTakeWithNil()
+					local candidate;
+					local expected = {
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					};
+					Opt:of({
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					}):take():apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTakeWithZero()
+					local candidate;
+					local expected = {
+						1
+					};
+					Opt:of({
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					}):take(0):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testTakeWithNumberHigherThanCapacity()
+					local candidate;
+					local expected = {
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					};
+					Opt:of({
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					}):take(100):apply(function(table)
+						candidate = table;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testIter()
+					local candidate;
+					local expected = 2;
+					local iter = Opt:of({
+						1,
+						2,
+						3
+					}):iter();
+					iter:next();
+					local k, v = iter:next();
+					candidate = v;
+					return assert:equals(expected, candidate);
+				end
+				function obj:testIterWithConsumer()
+					local candidate;
+					local expected = 2;
+					Opt:of({
+						1,
+						2,
+						3
+					}):forIter(function(iter)
+						iter:next();
+						local _, v = iter:next();
+						candidate = v;
+					end);
+					return assert:equals(expected, candidate);
+				end
+				function obj:testKeysOrdered()
+					local candidate = Opt:of();
+					local expected = Opt:of({
+						"13",
+						"21",
+						"35"
+					});
+					Opt:of({
+						[(3)] = 5,
+						[(1)] = 3,
+						[(2)] = 1
+					}):keysOrdered(function(k, v)
+						candidate:add((tostring(k)..tostring(v)));
+					end);
+					return assert:equals(expected:get(), candidate:get());
+				end
+				return obj;
+			end
+			return OptTest;
+		end,
+	};
+
+	function ready()
+		import("main");
+	end
+}
+
+show_more = false
+tile_cell_pixels = 48
