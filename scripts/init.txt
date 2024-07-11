@@ -2278,6 +2278,7 @@
 	};
 
 	function ready()
+		-- test
 		import("main");
 	end
 }
