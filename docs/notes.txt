@@ -1,0 +1,50 @@
+1.
+Transpile clue into lua (main.lua).
+
+2.
+Strip the following from init.txt:
+
+if _modules["main"] then
+	return import("main")
+else
+	error("File \"main.clue\" was not found!")
+end
+
+3.
+Add semicolon ; to the end of main.lua code:
+
+{
+	--STATICS
+	local import, _modules
+	do
+		local cache = {}
+		local nils = {}
+		function import(modname)
+			if nils[modname] then return end
+			local cached = cache[modname]
+			if cached ~= nil then return cached end
+			cached = _modules[modname]
+			if cached ~= nil then
+				cached = cached(modname);
+				if cached == nil then
+					nils[modname] = true
+				else
+					cache[modname] = cached
+				end
+				return cached
+			end
+		end
+	end
+    _modules = {
+        ...
+    -- add ; here before ready().
+	}; 
+
+    function ready()
+		-- test
+		import("main");
+	end
+}
+
+4.
+Copy the rest into init.txt.
