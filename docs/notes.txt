@@ -38,13 +38,16 @@ Add semicolon ; to the end of main.lua code:
     _modules = {
         ...
     -- add ; here before ready().
-	}; 
+	};
 
     function ready()
 		-- test
 		import("main");
 	end
 }
+
+show_more = false
+tile_cell_pixels = 48
 
 4.
 Copy the rest into init.txt.
