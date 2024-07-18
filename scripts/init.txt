@@ -63,80 +63,6 @@
 			};
 			return Consts;
 		end,
-		["iter"] = function(...)
-			Iter = {		};
-			function Iter:new(object)
-				local obj = ObjectDescriptor:new();
-				local util = Util:new();
-				local nextIndex = nil;
-				function obj:init(o)
-					if util:isTable(o) then
-						obj.tbl = o;
-						local byKeys = {					};
-						for k, _ in pairs(o) do
-							table.insert(byKeys, k);
-						end
-						table.sort(byKeys);
-						obj.sortedKeys = byKeys;
-					end
-				end
-				obj:init(object);
-				function obj:next()
-					local k, v = next(obj.sortedKeys, obj.nextIndex);
-					obj.nextIndex = k;
-					return v, obj.tbl[(v)];
-				end
-				return obj;
-			end
-			return Iter;
-		end,
-		["envsetup"] = function(...)
-			EnvSetup = {		};
-			function EnvSetup:run()
-				local obj = ObjectDescriptor:new();
-				obj.name = "EnvSetup";
-				function obj:setDev()
-					if not crawl then
-						obj.DCSS = false;
-					else
-						obj.DCSS = true;
-					end
-				end
-				obj:setDev();
-				function obj:isDev()
-					return not obj.DCSS;
-				end
-				function obj:setGlobals()
-					if obj:isDev() then
-						crawl = {					};
-						function crawl:mpr(str)
-							print(str);
-						end
-						function crawl:setopt(s)
-
-						end
-						you = {					};
-						function you:turns()
-							return 0;
-						end
-						function you:race()
-							return "human";
-						end
-						function you:class()
-							return "fighter";
-						end
-						function mpr(str)
-							print(str);
-						end
-						c_persist = {					};
-						mpr("Using DEV env.");
-					end
-				end
-				obj:setGlobals();
-				return obj;
-			end
-			return EnvSetup;
-		end,
 		["objectdescriptortest"] = function(...)
 			ObjectDescriptorTest = {		};
 			function ObjectDescriptorTest:new()
@@ -162,6 +88,21 @@
 				end
 				return obj;
 			end
+		end,
+		["testutil"] = function(...)
+			TestUtil = {		};
+			function TestUtil:new()
+				local obj = ObjectDescriptor:new();
+				function obj:init()
+					obj.name = "TestUtil";
+				end
+				obj:init();
+				function obj:newResult(tstName, message, candidate, expected, state)
+					return TestResult:new(tstName, message, candidate, expected, state);
+				end
+				return obj;
+			end
+			return TestUtil;
 		end,
 		["asserttest"] = function(...)
 			AssertTest = {		};
@@ -264,75 +205,315 @@
 			end
 			return Assert;
 		end,
-		["testutil"] = function(...)
-			TestUtil = {		};
-			function TestUtil:new()
+		["envsetup"] = function(...)
+			EnvSetup = {		};
+			function EnvSetup:run()
 				local obj = ObjectDescriptor:new();
-				function obj:init()
-					obj.name = "TestUtil";
+				obj.name = "EnvSetup";
+				function obj:setDev()
+					if not crawl then
+						obj.DCSS = false;
+					else
+						obj.DCSS = true;
+					end
 				end
-				obj:init();
-				function obj:newResult(tstName, message, candidate, expected, state)
-					return TestResult:new(tstName, message, candidate, expected, state);
+				obj:setDev();
+				function obj:isDev()
+					return not obj.DCSS;
 				end
+				function obj:setGlobals()
+					if obj:isDev() then
+						crawl = {					};
+						function crawl:mpr(str)
+							print("mpr: "..tostring(str));
+						end
+						function crawl:setopt(s)
+
+						end
+						you = {					};
+						function you:turns()
+							return 0;
+						end
+						function you:race()
+							return "human";
+						end
+						function you:class()
+							return "fighter";
+						end
+						function mpr(str)
+							print(str);
+						end
+						c_persist = {					};
+						mpr("Using DEV env.");
+					end
+				end
+				obj:setGlobals();
 				return obj;
 			end
-			return TestUtil;
+			return EnvSetup;
 		end,
-		["itertest"] = function(...)
-			IterTest = {		};
-			function IterTest:new()
+		["opt"] = function(...)
+			Opt = {		};
+			function Opt:of(val)
 				local obj = ObjectDescriptor:new();
-				local assert = Assert:new();
-				function obj:init()
-					obj.name = "IterTest";
+				local util = Util:new();
+				function obj:init(o)
+					obj.name = "Opt";
 				end
-				obj:init();
-				function obj:testIter()
-					local candidate = Opt:of();
-					local expected = Opt:of({
-						1,
-						2,
-						3,
-						4
-					});
-					local iter = Opt:of({
-						1,
-						2,
-						3,
-						4,
-						5,
-						6,
-						7,
-						8
-					}):iter();
-					for i = 1, 4, 1 do
-						local k, v = iter:next();
-						candidate:add(v);
+				obj:init(val);
+				function obj:use(objectOrTable)
+					local _internal0 = objectOrTable;
+					local _internal1 = objectOrTable;
+					if not util:isNumber(objectOrTable) and (_internal0 and _internal0.get) and (_internal1 and _internal1.name)=="Opt" then
+						obj:use(objectOrTable:get());
+					elseif util:isTable(objectOrTable) then
+						obj.tbl = objectOrTable;
+					elseif objectOrTable then
+						obj.tbl = {
+							objectOrTable
+						};
+					else
+						obj.tbl = {					};
 					end
-					return assert:equals(expected:get(), candidate:get());
+					return self;
 				end
-				function obj:testIter2()
-					local candidate = Opt:of();
-					local expected = Opt:of({
-						1,
-						2,
-						3
-					});
-					local iter = Opt:of({
-						1,
-						2,
-						3
-					}):iter();
-					for i = 1, 4, 1 do
-						local k, v = iter:next();
-						candidate:add(v);
+				obj:use(val);
+				function obj:size()
+					local size = 0;
+					for k, v in pairs(obj.tbl) do
+						size = size + 1;
 					end
-					return assert:equals(expected:get(), candidate:get());
+					return size;
+				end
+				function obj:set(key, value)
+					if key and value then
+						obj.tbl[((key))] = value;
+					end
+					return self;
+				end
+				function obj:add(object)
+					if object then
+						obj.tbl[((#obj.tbl+1))] = object;
+					end
+					return self;
+				end
+				function obj:cat(table)
+					if util:isTable(table) then
+						local size = obj:size();
+						for _, v in pairs(table) do
+							size = size + 1;
+							obj.tbl[((size))] = v;
+						end
+					end
+					return self;
+				end
+				function obj:put(table)
+					if util:isTable(table) then
+						for k, v in pairs(table) do
+							obj.tbl[((k))] = v;
+						end
+					end
+					return self;
+				end
+				function obj:map(mapFn)
+					local allResults = {				};
+					local isResults = false;
+					if util:isFunction(mapFn) then
+						for k, v in pairs(obj.tbl) do
+							local result = mapFn(k, v);
+							if result then
+								allResults[((#allResults+1))] = result;
+								isResults = true;
+							end
+						end
+					end
+					if isResults then
+						return Opt:of(allResults);
+					else
+						return self;
+					end
+				end
+				function obj:forEach(forEachFn)
+					if util:isFunction(forEachFn) then
+						for key, value in pairs(obj.tbl) do
+							forEachFn(key, value);
+						end
+					end
+					return self;
+				end
+				function obj:filter(predicate)
+					local results = {				};
+					if predicate==nil or not util:isFunction(predicate) then
+						results = obj:get();
+					else
+						for k, v in pairs(obj.tbl) do
+							if predicate(k, v) then
+								results[((k))] = v;
+							end
+						end
+					end
+					return Opt:of(results);
+				end
+				function obj:mapc(code)
+					local mapped = {				};
+					local isResults = false;
+					if (not util:isEmptyStr(code)) then
+						local codeString = string.format("return function(k, v) %s end", code);
+						local fn1 = loadstring(codeString)();
+						setfenv(fn1, getfenv());
+						mapped = obj:map(fn1);
+						isResults = true;
+					end
+					if isResults then
+						return Opt:of(mapped);
+					else
+						return self;
+					end
+				end
+				function obj:get()
+					local size = 0;
+					local firstKey = nil;
+					for key, val in pairs(obj.tbl) do
+						size = size+1;
+						if size==1 then
+							firstKey = key;
+						end
+						if size>=2 then
+							break;
+						end
+					end
+					if size>=2 then
+						return obj.tbl;
+					else
+						return obj.tbl[(firstKey)];
+					end
+				end
+				function obj:apply(applyFn)
+					if util:isFunction(applyFn) then
+						applyFn(obj.tbl);
+					end
+					return self;
+				end
+				function obj:some(someFn)
+					if obj:size()>0 and util:isFunction(someFn) then
+						someFn(obj.tbl);
+					end
+					return self;
+				end
+				function obj:none(noneFn)
+					if obj:size()==0 and util:isFunction(noneFn) then
+						noneFn(obj.tbl);
+					end
+					return self;
+				end
+				function obj:sortKeys()
+					local byKeys = {				};
+					for k, _ in pairs(obj.tbl) do
+						table.insert(byKeys, k);
+					end
+					table.sort(byKeys);
+					return byKeys;
+				end
+				function obj:take(numberOfElements)
+					if util:isNumber(numberOfElements) then
+						local i = 0;
+						local newList = Opt:of();
+						for _, v in pairs(obj:sortKeys()) do
+							newList:set(v, obj.tbl[(v)]);
+							i = i + 1;
+							if i>=numberOfElements then
+								break;
+							end
+						end
+						obj:use(newList);
+					end
+					return self;
+				end
+				function obj:flatMap(flatMapFn)
+					local results = {				};
+					local isResults = false;
+					if util:isFunction(flatMapFn) then
+						for k, v in pairs(obj.tbl) do
+							local mapped = flatMapFn(k, v);
+							if util:isTable(mapped) then
+								for _, v2 in pairs(mapped) do
+									results[((#results+1))] = v2;
+									isResults = true;
+								end
+							else
+								results[((#results+1))] = mapped;
+								isResults = true;
+							end
+						end
+					end
+					if isResults then
+						return Opt:of(results);
+					else
+						return self;
+					end
+				end
+				function obj:dump()
+					mpr(dump(obj.tbl));
+					return self;
+				end
+				function obj:addAll(table)
+					if util:isTable(table) then
+						for key, value in pairs(table) do
+							obj.tbl[((#obj.tbl+1))] = value;
+						end
+					end
+					return self;
+				end
+				function obj:reduce(reduceFn, acc)
+					local a = acc;
+					if util:isFunction(reduceFn) and acc then
+						for k, v in pairs(obj.tbl) do
+							a = reduceFn(k, v, a);
+						end
+					else
+						return self;
+					end
+					return Opt:of(a);
+				end
+				function obj:slice(fromIndex, toIndex)
+					if util:isNumber(fromIndex) and util:isNumber(toIndex) and obj:size()>0 then
+						local tableSize = obj:size();
+						fromIndex = util:ensureIndex(tableSize, fromIndex);
+						toIndex = util:ensureIndex(tableSize, toIndex);
+						if fromIndex>toIndex then
+							fromIndex = toIndex;
+						end
+						if toIndex<fromIndex then
+							toIndex = fromIndex;
+						end
+						local newList = Opt:of();
+						local i = fromIndex;
+						repeat
+							newList:add(obj.tbl[(i)]);
+							i = i + 1;
+						until i>toIndex
+						obj:use(newList);
+					end
+					return self;
+				end
+				function obj:iter()
+					return Iter:new(obj.tbl);
+				end
+				function obj:forIter(iteratorConsumerFn)
+					if util:isFunction(iteratorConsumerFn) then
+						iteratorConsumerFn(Iter:new(obj.tbl));
+					end
+					return self;
+				end
+				function obj:keysOrdered(orderedKeysConsumerFn)
+					for _, v in pairs(obj:sortKeys()) do
+						orderedKeysConsumerFn(v, obj.tbl[(v)]);
+					end
+					return self;
 				end
 				return obj;
 			end
-			return OptTest;
+			return Opt;
 		end,
 		["testresult"] = function(...)
 			TestResult = {		};
@@ -381,50 +562,6 @@
 				return obj;
 			end
 			return TestResult;
-		end,
-		["main"] = function(...)
-			local imports = {
-				"consts",
-				"objectdescriptor",
-				"util",
-				"envsetup",
-				"assert",
-				"asserttest",
-				"testresult",
-				"testutil",
-				"testrunner",
-				"opt",
-				"opttest",
-				"utiltest",
-				"objectdescriptortest",
-				"exp",
-				"exptest",
-				"characterdefaults",
-				"iter",
-				"itertest"
-			};
-			for _, name in ipairs(imports) do
-				import(name);
-			end
-			EnvSetup:run();
-			Util:new():setOptions();
-			function runAllAddonTestSuites()
-				local tests = {
-					OptTest:new(),
-					AssertTest:new(),
-					UtilTest:new(),
-					ObjectDescriptorTest:new(),
-					ExpTest:new(),
-					IterTest:new()
-				};
-				local testFilter = nil;
-				TestRunner:run(tests, testFilter);
-			end
-			runAllAddonTestSuites();
-			local charDef = CharacterDefaults:new();
-			saveCharDefaults = charDef.saveCharDefaults;
-			loadCharDefaults = charDef.loadCharDefaults;
-			charDef:setDefaults();
 		end,
 		["objectdescriptor"] = function(...)
 			ObjectDescriptor = {		};
@@ -478,6 +615,255 @@
 				return obj;
 			end
 			return ObjectDescriptor;
+		end,
+		["itertest"] = function(...)
+			IterTest = {		};
+			function IterTest:new()
+				local obj = ObjectDescriptor:new();
+				local assert = Assert:new();
+				function obj:init()
+					obj.name = "IterTest";
+				end
+				obj:init();
+				function obj:testIterateFour()
+					local candidate = Opt:of();
+					local expected = Opt:of({
+						1,
+						2,
+						3,
+						4
+					});
+					local iter = Opt:of({
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					}):iter();
+					for i = 1, 4, 1 do
+						local k, v = iter:next();
+						candidate:add(v);
+					end
+					return assert:equals(expected:get(), candidate:get());
+				end
+				function obj:testIterateAll()
+					local candidate = Opt:of();
+					local expected = Opt:of({
+						1,
+						2,
+						3
+					});
+					local iter = Opt:of({
+						1,
+						2,
+						3
+					}):iter();
+					for i = 1, 4, 1 do
+						local k, v = iter:next();
+						candidate:add(v);
+					end
+					return assert:equals(expected:get(), candidate:get());
+				end
+				function obj:testIterHasNextSome()
+					local candidate = Opt:of();
+					local expected = Opt:of({				});
+					local iter = Opt:of({
+						1,
+						2,
+						3
+					}):iter();
+					local candidate = iter:hasNext();
+					return assert:equals(true, candidate);
+				end
+				function obj:testIterHasNextNone()
+					local candidate = Opt:of();
+					local expected = Opt:of({
+						"1",
+						"2",
+						"false"
+					});
+					local iter = Opt:of({
+						1,
+						2
+					}):iter();
+					local _, v = iter:next();
+					candidate:add(tostring(v));
+					_, v = iter:next();
+					candidate:add(tostring(v));
+					candidate:add(tostring(iter:hasNext()));
+					return assert:equals(expected:get(), candidate:get());
+				end
+				return obj;
+			end
+			return OptTest;
+		end,
+		["exp"] = function(...)
+			Exp = {		};
+			function Exp:of(expChart)
+				local obj = ObjectDescriptor:new();
+				function obj:init(chart)
+					local util = Util:new();
+					obj.name = "Exp";
+					obj.isEmptyStr = util.isEmptyStr;
+					obj.skills = Opt:of();
+					obj.expChart = chart;
+				end
+				function obj:dump()
+					obj.skills:dump();
+				end
+				function obj:parseSkill(line, name)
+					Opt:of(line):flatMap(function(k, v)
+						return splitByChunk(split(v, "|")[(2)], 3);
+					end):map(function(k, v)
+						return trim(v);
+					end):apply(function(table)
+						obj.skills:set(name, table);
+					end);
+				end
+				function obj:parseSkills(chart)
+					local lines = Opt:of(chart):flatMap(function(_, all)
+						local withoutLine1 = string.sub(all, 98);
+						local withoutLines1and2 = string.sub(withoutLine1, 101);
+						return splitByChunk(withoutLines1and2, 101);
+					end);
+					Opt:of(Consts.otherSkills):addAll(Consts.rangedSkills):addAll(Consts.weaponSkills):forEach(function(k, skillName)
+						lines:filter(function(_, line)
+							return string.find(line, skillName);
+						end):forEach(function(_, line)
+							obj:parseSkill(line, skillName);
+						end);
+					end);
+				end
+				obj:init(expChart);
+				obj:parseSkills(expChart);
+				function obj:get(skillName)
+					return obj.skills:get()[(skillName)];
+				end
+				function obj:getExpChart()
+					return obj.expChart;
+				end
+				function obj:advancementFor(skillName, curLevel)
+					local skillTable = obj:get(skillName);
+					local advancementPerLevel = 0;
+					Opt:of(skillTable):filter(function(k, v)
+						return (v and ""~=v) and (k>=curLevel);
+					end):forIter(function(iter)
+						local k1, v1 = iter:next();
+						local k2, v2 = iter:next();
+						local levelDiff = k2-k1;
+						local skillDiff = v2-v1;
+						advancementPerLevel = skillDiff/levelDiff;
+					end);
+					return advancementPerLevel;
+				end
+				return obj;
+			end
+			return Exp;
+		end,
+		["testrunner"] = function(...)
+			TestRunner = {		};
+			function TestRunner:run(table, filter)
+				local obj = ObjectDescriptor:new();
+				function obj:init(tbl, ftr)
+					obj.name = "TestRunner";
+					local _internal0 = type(tbl);
+					if (_internal0 == "table") then
+						obj.tests = tbl;
+					else
+						obj.tests = {
+							tbl
+						};
+					end
+					obj.filter = ftr;
+				end
+				obj:init(table, filter);
+				function obj:runSuite()
+					local results = Opt:of();
+					local resultMessages = Opt:of();
+					local successes = 0;
+					resultMessages:add("\nTest suites: "..#obj.tests);
+					if obj.filter then
+						resultMessages:add("\nFilter: "..obj.filter);
+					end
+					Opt:of(obj.tests):forEach(function(_, test)
+						resultMessages:add("\n\nSuite: "..test:getName().."\n");
+						Opt:of(test):filter(function(key, value)
+							local keyFound = string.find(key, "test");
+							if obj.filter then
+								keyFound = keyFound and string.find(key, obj.filter);
+							end
+							return keyFound;
+						end):forEach(function(fnName, testFn)
+							local tr = testFn();
+							if not tr then
+								tr = TestResult:new("", "", "testFunction did not return: TestResult.", "n/a", false);
+							end
+							tr:setTestName(fnName or "");
+							results:add(tr);
+							resultMessages:add("\n"..tr:tostring());
+							if tr.state then
+								successes = successes + 1;
+							end
+						end);
+					end);
+					local message = "";
+					resultMessages:forEach(function(k, v)
+						message = message..v;
+					end);
+					mpr(message);
+					mpr(string.format("\n\nTotal tests run: %s, ok: %s, failed: %s", results:size(), successes, results:size()-successes));
+				end
+				obj:runSuite();
+				return obj;
+			end
+			return TestRunner;
+		end,
+		["main"] = function(...)
+			local imports = {
+				"consts",
+				"objectdescriptor",
+				"util",
+				"envsetup",
+				"assert",
+				"asserttest",
+				"testresult",
+				"testutil",
+				"testrunner",
+				"opt",
+				"opttest",
+				"utiltest",
+				"objectdescriptortest",
+				"exp",
+				"exptest",
+				"characterdefaults",
+				"iter",
+				"itertest"
+			};
+			for _, name in ipairs(imports) do
+				import(name);
+			end
+			EnvSetup:run();
+			Util:new():setOptions();
+			function runAllAddonTestSuites()
+				local tests = {
+					OptTest:new(),
+					AssertTest:new(),
+					UtilTest:new(),
+					ObjectDescriptorTest:new(),
+					ExpTest:new(),
+					IterTest:new()
+				};
+				local testFilter = nil;
+				TestRunner:run(tests, testFilter);
+			end
+			runAllAddonTestSuites();
+			local charDef = CharacterDefaults:new();
+			saveCharDefaults = charDef.saveCharDefaults;
+			loadCharDefaults = charDef.loadCharDefaults;
+			charDef:setDefaults();
 		end,
 		["characterdefaults"] = function(...)
 			CharacterDefaults = {		};
@@ -578,129 +964,6 @@
 				return obj;
 			end
 			return CharacterDefaults;
-		end,
-		["exp"] = function(...)
-			Exp = {		};
-			function Exp:of(expChart)
-				local obj = ObjectDescriptor:new();
-				function obj:init(chart)
-					local util = Util:new();
-					obj.name = "Exp";
-					obj.isEmptyStr = util.isEmptyStr;
-					obj.skills = Opt:of();
-					obj.expChart = chart;
-				end
-				function obj:dump()
-					obj.skills:dump();
-				end
-				function obj:parseSkill(line, name)
-					Opt:of(line):flatMap(function(k, v)
-						return splitByChunk(split(v, "|")[(2)], 3);
-					end):map(function(k, v)
-						return trim(v);
-					end):apply(function(table)
-						obj.skills:set(name, table);
-					end);
-				end
-				function obj:parseSkills(chart)
-					local lines = Opt:of(chart):flatMap(function(_, all)
-						local withoutLine1 = string.sub(all, 98);
-						local withoutLines1and2 = string.sub(withoutLine1, 101);
-						return splitByChunk(withoutLines1and2, 101);
-					end);
-					Opt:of(Consts.otherSkills):addAll(Consts.rangedSkills):addAll(Consts.weaponSkills):forEach(function(k, skillName)
-						lines:filter(function(_, line)
-							return string.find(line, skillName);
-						end):forEach(function(_, line)
-							obj:parseSkill(line, skillName);
-						end);
-					end);
-				end
-				obj:init(expChart);
-				obj:parseSkills(expChart);
-				function obj:get(skillName)
-					return obj.skills:get()[(skillName)];
-				end
-				function obj:getExpChart()
-					return obj.expChart;
-				end
-				function obj:advancementFor(skillName, curLevel)
-					local skillTable = obj:get(skillName);
-					local advancementPerLevel = 0;
-					Opt:of(skillTable):filter(function(k, v)
-						return (v and ""~=v) and (k>=curLevel);
-					end):forIter(function(iter)
-						local k1, v1 = iter:next();
-						local k2, v2 = iter:next();
-						local levelDiff = k2-k1;
-						local skillDiff = v2-v1;
-						print(levelDiff);
-						print(skillDiff);
-						advancementPerLevel = skillDiff/levelDiff;
-					end);
-					return advancementPerLevel;
-				end
-				return obj;
-			end
-			return Exp;
-		end,
-		["testrunner"] = function(...)
-			TestRunner = {		};
-			function TestRunner:run(table, filter)
-				local obj = ObjectDescriptor:new();
-				function obj:init(tbl, ftr)
-					obj.name = "TestRunner";
-					local _internal0 = type(tbl);
-					if (_internal0 == "table") then
-						obj.tests = tbl;
-					else
-						obj.tests = {
-							tbl
-						};
-					end
-					obj.filter = ftr;
-				end
-				obj:init(table, filter);
-				function obj:runSuite()
-					local results = Opt:of();
-					local resultMessages = Opt:of();
-					local successes = 0;
-					resultMessages:add("\nTest suites: "..#obj.tests);
-					if obj.filter then
-						resultMessages:add("\nFilter: "..obj.filter);
-					end
-					Opt:of(obj.tests):forEach(function(_, test)
-						resultMessages:add("\n\nSuite: "..test:getName().."\n");
-						Opt:of(test):filter(function(key, value)
-							local keyFound = string.find(key, "test");
-							if obj.filter then
-								keyFound = keyFound and string.find(key, obj.filter);
-							end
-							return keyFound;
-						end):forEach(function(fnName, testFn)
-							local tr = testFn();
-							if not tr then
-								tr = TestResult:new("", "", "testFunction did not return: TestResult.", "n/a", false);
-							end
-							tr:setTestName(fnName or "");
-							results:add(tr);
-							resultMessages:add("\n"..tr:tostring());
-							if tr.state then
-								successes = successes + 1;
-							end
-						end);
-					end);
-					local message = "";
-					resultMessages:forEach(function(k, v)
-						message = message..v;
-					end);
-					mpr(message);
-					mpr(string.format("\n\nTotal tests run: %s, ok: %s, failed: %s", results:size(), successes, results:size()-successes));
-				end
-				obj:runSuite();
-				return obj;
-			end
-			return TestRunner;
 		end,
 		["exptest"] = function(...)
 			ExpTest = {		};
@@ -1042,6 +1305,37 @@
 			end
 			return UtilTest;
 		end,
+		["iter"] = function(...)
+			Iter = {		};
+			function Iter:new(object)
+				local obj = ObjectDescriptor:new();
+				local util = Util:new();
+				local nextIndex = nil;
+				function obj:init(o)
+					if util:isTable(o) then
+						obj.tbl = o;
+						local byKeys = {					};
+						for k, _ in pairs(o) do
+							table.insert(byKeys, k);
+						end
+						table.sort(byKeys);
+						obj.sortedKeys = byKeys;
+					end
+				end
+				obj:init(object);
+				function obj:next()
+					local k, v = next(obj.sortedKeys, obj.nextIndex);
+					obj.nextIndex = k;
+					return v, obj.tbl[(v)];
+				end
+				function obj:hasNext()
+					local k, v = next(obj.sortedKeys, obj.nextIndex);
+					return (v~=nil);
+				end
+				return obj;
+			end
+			return Iter;
+		end,
 		["util"] = function(...)
 			Util = {		};
 			function Util:new()
@@ -1325,269 +1619,6 @@
 				end;
 			end
 			return Util;
-		end,
-		["opt"] = function(...)
-			Opt = {		};
-			function Opt:of(val)
-				local obj = ObjectDescriptor:new();
-				local util = Util:new();
-				function obj:init(o)
-					obj.name = "Opt";
-				end
-				obj:init(val);
-				function obj:use(objectOrTable)
-					local _internal0 = objectOrTable;
-					local _internal1 = objectOrTable;
-					if not util:isNumber(objectOrTable) and (_internal0 and _internal0.get) and (_internal1 and _internal1.name)=="Opt" then
-						obj:use(objectOrTable:get());
-					elseif util:isTable(objectOrTable) then
-						obj.tbl = objectOrTable;
-					elseif objectOrTable then
-						obj.tbl = {
-							objectOrTable
-						};
-					else
-						obj.tbl = {					};
-					end
-					return self;
-				end
-				obj:use(val);
-				function obj:size()
-					local size = 0;
-					for k, v in pairs(obj.tbl) do
-						size = size + 1;
-					end
-					return size;
-				end
-				function obj:set(key, value)
-					if key and value then
-						obj.tbl[((key))] = value;
-					end
-					return self;
-				end
-				function obj:add(object)
-					if object then
-						obj.tbl[((#obj.tbl+1))] = object;
-					end
-					return self;
-				end
-				function obj:cat(table)
-					if util:isTable(table) then
-						local size = obj:size();
-						for _, v in pairs(table) do
-							size = size + 1;
-							obj.tbl[((size))] = v;
-						end
-					end
-					return self;
-				end
-				function obj:put(table)
-					if util:isTable(table) then
-						for k, v in pairs(table) do
-							obj.tbl[((k))] = v;
-						end
-					end
-					return self;
-				end
-				function obj:map(mapFn)
-					local allResults = {				};
-					local isResults = false;
-					if util:isFunction(mapFn) then
-						for k, v in pairs(obj.tbl) do
-							local result = mapFn(k, v);
-							if result then
-								allResults[((#allResults+1))] = result;
-								isResults = true;
-							end
-						end
-					end
-					if isResults then
-						return Opt:of(allResults);
-					else
-						return self;
-					end
-				end
-				function obj:forEach(forEachFn)
-					if util:isFunction(forEachFn) then
-						for key, value in pairs(obj.tbl) do
-							forEachFn(key, value);
-						end
-					end
-					return self;
-				end
-				function obj:filter(predicate)
-					local results = {				};
-					if predicate==nil or not util:isFunction(predicate) then
-						results = obj:get();
-					else
-						for k, v in pairs(obj.tbl) do
-							if predicate(k, v) then
-								results[((k))] = v;
-							end
-						end
-					end
-					return Opt:of(results);
-				end
-				function obj:mapc(code)
-					local mapped = {				};
-					local isResults = false;
-					if (not util:isEmptyStr(code)) then
-						local codeString = string.format("return function(k, v) %s end", code);
-						local fn1 = loadstring(codeString)();
-						setfenv(fn1, getfenv());
-						mapped = obj:map(fn1);
-						isResults = true;
-					end
-					if isResults then
-						return Opt:of(mapped);
-					else
-						return self;
-					end
-				end
-				function obj:get()
-					local size = 0;
-					local firstKey = nil;
-					for key, val in pairs(obj.tbl) do
-						size = size+1;
-						if size==1 then
-							firstKey = key;
-						end
-						if size>=2 then
-							break;
-						end
-					end
-					if size>=2 then
-						return obj.tbl;
-					else
-						return obj.tbl[(firstKey)];
-					end
-				end
-				function obj:apply(applyFn)
-					if util:isFunction(applyFn) then
-						applyFn(obj.tbl);
-					end
-					return self;
-				end
-				function obj:some(someFn)
-					if obj:size()>0 and util:isFunction(someFn) then
-						someFn(obj.tbl);
-					end
-					return self;
-				end
-				function obj:none(noneFn)
-					if obj:size()==0 and util:isFunction(noneFn) then
-						noneFn(obj.tbl);
-					end
-					return self;
-				end
-				function obj:sortKeys()
-					local byKeys = {				};
-					for k, _ in pairs(obj.tbl) do
-						table.insert(byKeys, k);
-					end
-					table.sort(byKeys);
-					return byKeys;
-				end
-				function obj:take(numberOfElements)
-					if util:isNumber(numberOfElements) then
-						local i = 0;
-						local newList = Opt:of();
-						for _, v in pairs(obj:sortKeys()) do
-							newList:set(v, obj.tbl[(v)]);
-							i = i + 1;
-							if i>=numberOfElements then
-								break;
-							end
-						end
-						obj:use(newList);
-					end
-					return self;
-				end
-				function obj:flatMap(flatMapFn)
-					local results = {				};
-					local isResults = false;
-					if util:isFunction(flatMapFn) then
-						for k, v in pairs(obj.tbl) do
-							local mapped = flatMapFn(k, v);
-							if util:isTable(mapped) then
-								for _, v2 in pairs(mapped) do
-									results[((#results+1))] = v2;
-									isResults = true;
-								end
-							else
-								results[((#results+1))] = mapped;
-								isResults = true;
-							end
-						end
-					end
-					if isResults then
-						return Opt:of(results);
-					else
-						return self;
-					end
-				end
-				function obj:dump()
-					mpr(dump(obj.tbl));
-					return self;
-				end
-				function obj:addAll(table)
-					if util:isTable(table) then
-						for key, value in pairs(table) do
-							obj.tbl[((#obj.tbl+1))] = value;
-						end
-					end
-					return self;
-				end
-				function obj:reduce(reduceFn, acc)
-					local a = acc;
-					if util:isFunction(reduceFn) and acc then
-						for k, v in pairs(obj.tbl) do
-							a = reduceFn(k, v, a);
-						end
-					else
-						return self;
-					end
-					return Opt:of(a);
-				end
-				function obj:slice(fromIndex, toIndex)
-					if util:isNumber(fromIndex) and util:isNumber(toIndex) and obj:size()>0 then
-						local tableSize = obj:size();
-						fromIndex = util:ensureIndex(tableSize, fromIndex);
-						toIndex = util:ensureIndex(tableSize, toIndex);
-						if fromIndex>toIndex then
-							fromIndex = toIndex;
-						end
-						if toIndex<fromIndex then
-							toIndex = fromIndex;
-						end
-						local newList = Opt:of();
-						local i = fromIndex;
-						repeat
-							newList:add(obj.tbl[(i)]);
-							i = i + 1;
-						until i>toIndex
-						obj:use(newList);
-					end
-					return self;
-				end
-				function obj:iter()
-					return Iter:new(obj.tbl);
-				end
-				function obj:forIter(iteratorConsumerFn)
-					if util:isFunction(iteratorConsumerFn) then
-						iteratorConsumerFn(Iter:new(obj.tbl));
-					end
-					return self;
-				end
-				function obj:keysOrdered(orderedKeysConsumerFn)
-					for _, v in pairs(obj:sortKeys()) do
-						orderedKeysConsumerFn(v, obj.tbl[(v)]);
-					end
-					return self;
-				end
-				return obj;
-			end
-			return Opt;
 		end,
 		["opttest"] = function(...)
 			OptTest = {		};

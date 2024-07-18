@@ -62,18 +62,19 @@ method IterTest::new() {
    method obj::testIterHasNextNone() {
 
         local candidate = Opt::of()
-        local expected = Opt::of({ })
+        local expected = Opt::of({ "1", "2", "false" })
 
-        local iter =
-        Opt
+        local iter = Opt
             ::of( { 1, 2 } )
             ::iter()
 
-        local one = iter::next()
-        local two = iter::next()
-        local candidate = iter::hasNext()
+        local _, v = iter::next()
+        candidate::add(tostring(v))
+        _, v = iter::next()
+        candidate::add(tostring(v))
+        candidate::add(tostring(iter::hasNext()))
 
-        return assert::equals(false, candidate)
+        return assert::equals(expected::get(), candidate::get())
     }
 
     return obj

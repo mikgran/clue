@@ -27,7 +27,7 @@ method Iter::new(object) {
 
     method obj::hasNext() {
         local k, v = next(obj.sortedKeys, obj.nextIndex)
-        return (k != nil)
+        return (v != nil)
     }
 
     return obj
