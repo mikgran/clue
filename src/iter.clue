@@ -12,7 +12,7 @@ method Iter::new(object) {
             obj.tbl = o
 
             local byKeys = {}
-            for k, _ of o { table.insert(byKeys, k) }
+            for key, _ of o { table.insert(byKeys, key) }
             table.sort(byKeys)
             obj.sortedKeys = byKeys
         }
@@ -20,14 +20,14 @@ method Iter::new(object) {
     obj::init(object)
 
     method obj::next() {
-        local k, v = next(obj.sortedKeys, obj.nextIndex)
-        obj.nextIndex = k
-        return v, obj.tbl[v]
+        local key, value = next(obj.sortedKeys, obj.nextIndex)
+        obj.nextIndex = key
+        return value, obj.tbl[value]
     }
 
     method obj::hasNext() {
-        local k, v = next(obj.sortedKeys, obj.nextIndex)
-        return (v != nil)
+        local _, value = next(obj.sortedKeys, obj.nextIndex)
+        return (value != nil)
     }
 
     return obj
