@@ -59,7 +59,22 @@ method IterTest::new() {
         return assert::equals(true, candidate)
     }
 
-   method obj::testIterHasNextNone() {
+    method obj::testIterHasNextNoneWithEmpty() {
+
+        local candidate = Opt::of()
+        local expected = Opt::of({ })
+
+        local iter =
+        Opt
+            ::of({ })
+            ::iter()
+
+        local candidate = iter::hasNext()
+
+        return assert::equals(false, candidate)
+    }
+
+    method obj::testIterHasNextNone() {
 
         local candidate = Opt::of()
         local expected = Opt::of({ "1", "2", "false" })
