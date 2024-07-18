@@ -2327,4 +2327,8 @@
 show_more = false
 tile_cell_pixels = 48
 action_panel_font_size = 16
-tile_font_msg_size = 18
+tile_font_crt_size = 16
+tile_font_stat_size = 16
+tile_font_msg_size = 16
+tile_font_tip_size = 16
+tile_font_lbl_size = 16
