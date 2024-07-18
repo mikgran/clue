@@ -1,0 +1,44 @@
+{
+    "editor.fontFamily": "JetBrains Mono",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 16,
+    "workbench.colorTheme": "RainbowDrops Dark",
+    "editor.stickyScroll.enabled": false,
+    "files.associations": {
+        "*.clue": "cpp"
+    },
+    "extensions.ignoreRecommendations": true,
+    "[cpp]": {},
+    "git.ignoreMissingGitWarning": true,
+    "todohighlight.isCaseSensitive": false,
+    "todohighlight.include": [
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.html",
+        "**/*.php",
+        "**/*.css",
+        "**/*.cpp",
+        "**/*.scss"
+    ],
+    "todohighlight.keywords": [
+        "DEBUG:",
+        "REVIEW:",
+        {
+            "text": "local",
+            "color": "#DD2867",
+            "backgroundColor": "#202020",
+        },
+        {
+            "text": "global",
+            "color": "#DD2867",
+            "backgroundColor": "#202020",
+        },
+        {
+            "text": "method",
+            "color": "#DD2867",
+            "backgroundColor": "#202020",
+        }
+    ]
+}
