@@ -25,19 +25,23 @@
     "todohighlight.keywords": [
         "DEBUG:",
         "REVIEW:",
+        "REVIEW:",
         {
             "text": "local",
-            "color": "#DD2867",
+            "color": "#DD2869",
+            "fontWeight": "bold",
             "backgroundColor": "#202020",
         },
         {
             "text": "global",
-            "color": "#DD2867",
+            "color": "#DD2869",
+            "fontWeight": "bold",
             "backgroundColor": "#202020",
         },
         {
             "text": "method",
-            "color": "#DD2867",
+            "color": "#DD2869",
+            "fontWeight": "bold",
             "backgroundColor": "#202020",
         }
     ]
