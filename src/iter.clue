@@ -25,6 +25,11 @@ method Iter::new(object) {
         return v, obj.tbl[v]
     }
 
+    method obj::hasNext() {
+        local k, v = next(obj.sortedKeys, obj.nextIndex)
+        return (k != nil)
+    }
+
     return obj
 }
 

@@ -40,7 +40,7 @@ method runAllAddonTestSuites() {
     }
 
     local testFilter = nil
-    // testFilter = "testIter"
+    // testFilter = "testIterHas"
     // testFilter = "testCalc"
     TestRunner::run(tests, testFilter)
 }

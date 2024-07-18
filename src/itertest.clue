@@ -9,7 +9,7 @@ method IterTest::new() {
     }
     obj::init()
 
-    method obj::testIter() {
+    method obj::testIterateFour() {
 
         local candidate = Opt::of()
         local expected = Opt::of({ 1, 2, 3, 4 })
@@ -26,7 +26,7 @@ method IterTest::new() {
         return assert::equals(expected::get(), candidate::get())
     }
 
-    method obj::testIter2() {
+    method obj::testIterateAll() {
 
         local candidate = Opt::of()
         local expected = Opt::of({ 1, 2, 3 })
@@ -44,6 +44,37 @@ method IterTest::new() {
         return assert::equals(expected::get(), candidate::get())
     }
 
+    method obj::testIterHasNextSome() {
+
+        local candidate = Opt::of()
+        local expected = Opt::of({ })
+
+        local iter =
+        Opt
+            ::of( { 1, 2, 3 } )
+            ::iter()
+
+        local candidate = iter::hasNext()
+
+        return assert::equals(true, candidate)
+    }
+
+   method obj::testIterHasNextNone() {
+
+        local candidate = Opt::of()
+        local expected = Opt::of({ })
+
+        local iter =
+        Opt
+            ::of( { 1, 2 } )
+            ::iter()
+
+        local one = iter::next()
+        local two = iter::next()
+        local candidate = iter::hasNext()
+
+        return assert::equals(false, candidate)
+    }
 
     return obj
 }

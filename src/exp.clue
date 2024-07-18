@@ -66,8 +66,8 @@ method Exp::of(expChart) {
                 local k2, v2 = iter::next()
                 local levelDiff = k2 - k1
                 local skillDiff = v2 - v1
-                print(levelDiff)
-                print(skillDiff)
+                // print(levelDiff)
+                // print(skillDiff)
                 advancementPerLevel = skillDiff / levelDiff
             })
         return advancementPerLevel

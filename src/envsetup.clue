@@ -20,7 +20,7 @@ method EnvSetup::run() {
         if obj::isDev() {
 
             global crawl = {}
-            method crawl::mpr(str) { print(str) }
+            method crawl::mpr(str) { print("mpr: "..tostring(str)) }
             method crawl::setopt(s) {}
 
             global you = {}
