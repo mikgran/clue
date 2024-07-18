@@ -25,7 +25,6 @@
     "todohighlight.keywords": [
         "DEBUG:",
         "REVIEW:",
-        "REVIEW:",
         {
             "text": "local",
             "color": "#DD2869",
