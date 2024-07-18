@@ -31,8 +31,7 @@ method IterTest::new() {
         local candidate = Opt::of()
         local expected = Opt::of({ 1, 2, 3 })
 
-        local iter =
-        Opt
+        local iter = Opt
             ::of( { 1, 2, 3 } )
             ::iter()
 
@@ -49,8 +48,7 @@ method IterTest::new() {
         local candidate = Opt::of()
         local expected = Opt::of({ })
 
-        local iter =
-        Opt
+        local iter = Opt
             ::of( { 1, 2, 3 } )
             ::iter()
 
@@ -64,8 +62,7 @@ method IterTest::new() {
         local candidate = Opt::of()
         local expected = Opt::of({ })
 
-        local iter =
-        Opt
+        local iter = Opt
             ::of({ })
             ::iter()
 
