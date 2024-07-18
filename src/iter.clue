@@ -3,12 +3,15 @@ global Iter = {}
 method Iter::new(object) {
 
     local obj = ObjectDescriptor::new()
-    local util = Util::new()
     local nextIndex = nil
+    local sortedKeys = { }
 
     method obj::init(o) {
+        local util = Util::new()
+        obj.isTable = util.isTable
+        obj.isDef = util.isDef
 
-        if util::isTable(o) {
+        if obj::isTable(o) {
             obj.tbl = o
 
             local byKeys = {}
@@ -27,7 +30,7 @@ method Iter::new(object) {
 
     method obj::hasNext() {
         local _, value = next(obj.sortedKeys, obj.nextIndex)
-        return (value != nil)
+        return obj::isDef(value)
     }
 
     return obj
