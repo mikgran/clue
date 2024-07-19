@@ -76,7 +76,7 @@ method CharacterDefaults::new() {
         tprint(obj.chdat)
 
         if !quiet {
-            mpr("Saved default for " .. obj.charCombo)
+            mpr("Saved defaults for " .. obj.charCombo)
         }
     }
 
@@ -120,10 +120,6 @@ method CharacterDefaults::new() {
             obj::loadCharDefaults(quiet)
             obj.loadAttempted = true
         }
-    }
-
-    method obj::mydofile() {
-        dofile("CharacterDefaults.lua")
     }
 
     return obj
