@@ -8,6 +8,7 @@ method Exp::of(expChart) {
         obj.name = "Exp"
         obj.isEmptyStr = util.isEmptyStr
         obj.skills = Opt::of()
+        if !chart { chart = {} }
         obj.expChart = chart
     }
 
@@ -22,10 +23,11 @@ method Exp::of(expChart) {
             ::apply(fn(table) { obj.skills::set(name, table) })
     }
 
-    method obj::parseSkills(chart) {
+    method obj::parseSkillChart(chart) {
 
         local lines = Opt::of(chart)
             ::flatMap(fn(_, all) {
+                // change to split by \n?
                 local withoutLine1 = string.sub(all, 98)
                 local withoutLines1and2 = string.sub(withoutLine1, 101)
                 return splitByChunk(withoutLines1and2, 101)
@@ -34,7 +36,7 @@ method Exp::of(expChart) {
         Opt::of(Consts.otherSkills)
             ::addAll(Consts.rangedSkills)
             ::addAll(Consts.weaponSkills)
-            ::forEach(fn(k, skillName) {
+            ::forEach(fn(_, skillName) {
                 lines::
                     filter(fn(_, line) { return string.find(line, skillName) })::
                     forEach(fn(_, line) { obj::parseSkill(line, skillName) })
@@ -42,7 +44,7 @@ method Exp::of(expChart) {
     }
 
     obj::init(expChart)
-    obj::parseSkills(expChart)
+    obj::parseSkillChart(expChart)
 
     method obj::get(skillName) {
         return obj.skills::get()[skillName]
@@ -57,7 +59,7 @@ method Exp::of(expChart) {
         local advancementPerLevel = 0
 
         Opt::of(skillTable)
-            // TODO: fix filter and the rest of the functions to handle processing always in ordered fashion
+            ::sortByKeys()
             ::filter(fn(k, v) { return (v && "" != v) && (k >= currentLevel) })
             ::forIter(fn (iter) {
                 local k1, v1 = iter::next()

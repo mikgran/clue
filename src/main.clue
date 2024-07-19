@@ -35,12 +35,12 @@ method runAllAddonTestSuites() {
         AssertTest::new(),
         UtilTest::new(),
         ObjectDescriptorTest::new(),
-        ExpTest::new(),
         IterTest::new(),
+        ExpTest::new(),
     }
 
     local testFilter = nil
-    // testFilter = "testIterHas"
+    // testFilter = "testSortByKeys"
     // testFilter = "testCalc"
     TestRunner::run(tests, testFilter)
 }

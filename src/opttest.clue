@@ -632,6 +632,18 @@ method OptTest::new() {
         return assert::equals(expected::get(), candidate::get())
     }
 
+    method obj::testSortByKeys() {
+
+        local candidate = nil
+        local expected = Opt::of({ { [1] = 3, [2] = 1, [3] = 5 } })
+
+        candidate = Opt
+            ::of( { [3] = 5, [1] = 3, [2] = 1 } )
+            ::sortByKeys()
+
+        return assert::equals(expected::get(), candidate::get())
+    }
+
     return obj
 }
 

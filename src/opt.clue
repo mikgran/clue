@@ -173,7 +173,7 @@ method Opt::of(val) {
         return self
     }
 
-    method obj::sortKeys() {
+    method obj::getOrderedKeys() {
         local byKeys = {}
         for k, _ of obj.tbl { table.insert(byKeys, k) }
         table.sort(byKeys)
@@ -184,7 +184,7 @@ method Opt::of(val) {
         if util::isNumber(numberOfElements) {
             local i = 0
             local newList = Opt::of()
-            for _, v of obj::sortKeys() {
+            for _, v of obj::getOrderedKeys() {
                 newList::set(v, obj.tbl[v])
                 i += 1
                 if i >= numberOfElements {
@@ -278,7 +278,18 @@ method Opt::of(val) {
     }
 
     method obj::keysOrdered(orderedKeysConsumerFn) {
-        for _, v of obj::sortKeys() { orderedKeysConsumerFn(v, obj.tbl[v]) }
+        for _, key of obj::getOrderedKeys() {
+            orderedKeysConsumerFn(key, obj.tbl[key])
+        }
+        return self
+    }
+
+    method obj::sortByKeys() {
+        local newTable = {}
+        for _, key of obj::getOrderedKeys() {
+            newTable[key] = obj.tbl[key]
+        }
+        obj.tbl = newTable
         return self
     }
 
