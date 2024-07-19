@@ -76,6 +76,4 @@ Consts.otherSkills = {
     Consts.stealth
 }
 
-
-
 return Consts

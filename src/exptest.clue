@@ -58,7 +58,7 @@ Transmutations |                                                                
           [26] = "",
           [27] = ""}
 
-        local candidate = exp::get("Earth Magic")
+        local candidate = exp::get(Consts.earthMagic)
 
         return assert::equals(expected, candidate)
     }
@@ -93,7 +93,7 @@ Transmutations |                                                                
           [26] = "",
           [27] = ""}
 
-        local candidate = exp::get("Spellcasting")
+        local candidate = exp::get(Consts.spellcasting)
 
         return assert::equals(expected, candidate)
     }
@@ -128,21 +128,21 @@ Transmutations |                                                                
           [26] = "",
           [27] = ""}
 
-        local candidate = exp::get("Conjurations")
+        local candidate = exp::get(Consts.conjurations)
 
         return assert::equals(expected, candidate)
     }
 
     method obj::testCalculateSkillAdvancement() {
         local expected = 0.5
-        local candidate = exp::advancementFor("Earth Magic", 1)
+        local candidate = exp::advancementFor(Consts.earthMagic, 1)
         return assert::equals(expected, candidate)
     }
 
     method obj::testCalculateSkillAdvancement2() {
 
       local expected = 8 / 13
-      local candidate = exp::advancementFor("Fighting", 11)
+      local candidate = exp::advancementFor(Consts.fighting, 11)
       return assert::equals(expected, candidate)
     }
 

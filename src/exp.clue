@@ -16,8 +16,7 @@ method Exp::of(expChart) {
     }
 
     method obj::parseSkill(line, name) {
-        Opt
-            ::of(line)
+        Opt::of(line)
             ::flatMap(fn(k, v) { return splitByChunk(split(v, "|")[2], 3) })
             ::map(fn(k, v) { return trim(v) })
             ::apply(fn(table) { obj.skills::set(name, table) })
@@ -25,16 +24,14 @@ method Exp::of(expChart) {
 
     method obj::parseSkills(chart) {
 
-        local lines = Opt
-            ::of(chart)
+        local lines = Opt::of(chart)
             ::flatMap(fn(_, all) {
                 local withoutLine1 = string.sub(all, 98)
                 local withoutLines1and2 = string.sub(withoutLine1, 101)
                 return splitByChunk(withoutLines1and2, 101)
             })
 
-        Opt
-            ::of(Consts.otherSkills)
+        Opt::of(Consts.otherSkills)
             ::addAll(Consts.rangedSkills)
             ::addAll(Consts.weaponSkills)
             ::forEach(fn(k, skillName) {
@@ -55,19 +52,20 @@ method Exp::of(expChart) {
         return obj.expChart
     }
 
-    method obj::advancementFor(skillName, curLevel) {
+    method obj::advancementFor(skillName, currentLevel) {
         local skillTable = obj::get(skillName)
         local advancementPerLevel = 0
+
         Opt::of(skillTable)
-            // TODO: fix filter and the rest of the methods to handle processing always in ordered fashion
-            ::filter(fn(k, v) { return (v && "" != v) && (k >= curLevel) })
+            // TODO: fix filter and the rest of the functions to handle processing always in ordered fashion
+            ::filter(fn(k, v) { return (v && "" != v) && (k >= currentLevel) })
             ::forIter(fn (iter) {
                 local k1, v1 = iter::next()
                 local k2, v2 = iter::next()
                 local levelDiff = k2 - k1
                 local skillDiff = v2 - v1
-                // print(levelDiff)
-                // print(skillDiff)
+                print("level diff: " .. levelDiff)
+                print("skill diff: " .. skillDiff)
                 advancementPerLevel = skillDiff / levelDiff
             })
         return advancementPerLevel
